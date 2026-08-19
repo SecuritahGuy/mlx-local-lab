@@ -52,6 +52,32 @@ def test_gptoss_capabilities_do_not_treat_api_or_images_as_intelligence_failures
     assert result["quality_score"] is None
 
 
+def test_text_only_hallucination_profile_skips_only_image_case(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr("local_mlx.practical.RESULT_DIR", tmp_path)
+    response = {
+        "parsed": None,
+        "output": "INSUFFICIENT_EVIDENCE: requested fact is missing.",
+        "model_success": True,
+        "model_latency": 0.1,
+        "ttft_seconds": 0.01,
+        "prompt_tokens": 10,
+        "output_tokens": 4,
+        "tokens_per_second": 20,
+        "parse_success": None,
+        "schema_valid": None,
+        "error": None,
+        "memory": {},
+    }
+    with patch("local_mlx.practical.model_call", return_value=response) as model_call:
+        jsonl, _ = run_practical("gptoss", "hallucination")
+    rows = [json.loads(line) for line in jsonl.read_text().splitlines()]
+    image_case = next(row for row in rows if row["test"] == "camera-absent-person")
+    assert image_case["supported"] is False
+    assert image_case["quality_score"] is None
+    assert model_call.call_count == 3
+    assert all(row["quality_score"] == 1 for row in rows if row is not image_case)
+
+
 def test_repository_adversarial_case_rewards_no_change() -> None:
     answers = [
         MagicMock(parsed=RepositoryAnswer(answer="x", files=["app/config.py", "app/rest_client.py"], evidence=[], confidence=1),

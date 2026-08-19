@@ -474,8 +474,23 @@ def sports_cases(alias: str, source: RestDataSource) -> list[dict]:
 def hallucination_cases(alias: str, source: RestDataSource) -> list[dict]:
     rows = []
     cases = []
-    image, retrieval = source.get_image("/api/cameras/front-door/snapshot/empty-day")
-    cases.append(("camera-absent-person", "What color is the delivery driver's shirt? Explicitly say when the image lacks enough evidence.", [image], [retrieval]))
+    if get_model(alias).multimodal:
+        image, retrieval = source.get_image("/api/cameras/front-door/snapshot/empty-day")
+        cases.append(("camera-absent-person", "What color is the delivery driver's shirt? Explicitly say when the image lacks enough evidence.", [image], [retrieval]))
+    else:
+        row = _base_row(alias, "hallucination", "camera-absent-person", [])
+        row.update({
+            "prompt_version": HALLUCINATION_PROMPT_VERSION,
+            "supported": False,
+            "skip_reason": "case requires an image but model registry marks this model text-only",
+            "model_success": None,
+            "parse_success": None,
+            "schema_valid": None,
+            "quality_score": None,
+            "memory": {},
+            "error": None,
+        })
+        rows.append(row)
     team, retrieval = source.get_json("/api/sports/nfl/harbor-hawks")
     cases.append(("sports-absent-quarterback", "Which quarterback is injured? Use only this JSON and abstain if unspecified:\n" + json.dumps(team), [], [retrieval]))
     incident, retrieval = source.get_json("/api/mixed/incident")
