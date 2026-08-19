@@ -22,7 +22,7 @@ compatibility is tracked separately from model quality.
 | Realistic RAG 8K | 86.5% quality; 96.0% grounding | mid-context quality dip |
 | Realistic RAG 16K | 95.8% quality; 83.1% grounding | grounding weakened; 6.3 tok/s median |
 | Practical full, pre-v2 | 7.3/10 overall | hallucination resistance 2.5/10 |
-| Hallucination v2 | 3/3 supported text cases abstained correctly | image case was incorrectly attempted before skip fix |
+| Hallucination v2 | 10.0/10; 3/3 supported text cases abstained correctly | image case capability-skipped |
 
 The `executable-v2` validation returned the correct no-change structure—`change_required: false`
 and an empty change list—and passed all fixture tests without regressions. All five cases met their
@@ -40,17 +40,22 @@ failures.
   refactors. Patch application, targeted/full tests, minimality, and no-change safety were all 100%.
 - `hallucination-v2` defines absent fields as unknown, prohibits inference from general knowledge,
   and requires the `INSUFFICIENT_EVIDENCE` marker for unsupported answers. GPT-OSS complied in all
-  three supported text cases, improving supported-case abstention from 1/3 to 3/3.
-- The first v2 hallucination report displayed 7.5/10 because it attempted the image-based easy case
-  on a text-only model. The harness now capability-skips that case; a report-only rerun remains.
+  three supported text cases, improving supported-case abstention from 1/3 to 3/3 and the normalized
+  category score from 2.5/10 to 10.0/10.
+- The corrected report recorded zero failures, zero unsupported claims, and one capability-aware
+  skip for the image-based easy case. Its displayed overall score was 6.56/10 because speed and
+  system-wide memory efficiency remain included as separate categories.
+- The first supported request had 2.822-second TTFT and 4.707 tok/s; the next two had
+  0.378/0.362-second TTFT and 21.711/31.124 tok/s, consistent with a colder first inference.
 - The run increased swap from 0.40 GiB before model load to 2.38 GiB while memory pressure remained
-  normal. Swap was still 2.37 GiB after shutdown, so future 24 GiB runs should continue sequentially.
+  normal. The final rerun began and ended at 2.33 GiB swap, so future 24 GiB runs should continue
+  sequentially.
 
 ## Next validation
 
 ```bash
 make model MODEL=gptoss-final
-make bench-hallucination MODEL=gptoss-final
+# Repeat representative executable and hallucination cases three times.
 make stop
 ```
 

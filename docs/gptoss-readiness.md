@@ -25,7 +25,8 @@ be interpreted as an intelligence result.
 On 2026-08-19, `gptoss-final` completed all 21 core requests with 90.1% mean deterministic quality.
 The `executable-v2` run applied 5/5 decisions, passed 5/5 targeted and full suites, met all five
 minimality thresholds, produced no regressions, and correctly avoided the adversarial no-change edit.
-The three supported `hallucination-v2` text cases all abstained correctly. Realistic RAG scored 100.0% at
+The three supported `hallucination-v2` text cases all abstained correctly, producing a 10.0/10
+category score with the image case capability-skipped. Realistic RAG scored 100.0% at
 2K, 86.5% at 8K, and 95.8% at 16K. The practical full profile scored 7.3/10 overall; its strongest
 quality categories were agentic (10.0), repository (9.67), and sports (8.8), while hallucination
 resistance was the primary weakness (2.5).
@@ -33,17 +34,17 @@ resistance was the primary weakness (2.5).
 See [`docs/results/gptoss-evaluation-2026-08-19.md`](results/gptoss-evaluation-2026-08-19.md) for
 the detailed snapshot and result provenance.
 
-## Next-round commands
+## Next round
 
 ```bash
 # Run from the local-mlx-lab repository root.
 make model MODEL=gptoss-final
 make health
-make bench-hallucination MODEL=gptoss-final
+# Repeat representative executable and hallucination cases three times.
 make stop
 ```
 
-The hallucination rerun validates that the image-only case is reported as a capability skip after
-all three supported text cases passed the new evidence contract. Do not compare v2 scores directly
-with unversioned rows without noting the prompt change. Photographic, camera, and vision workloads
-remain capability-skipped for this text-only model.
+The corrected hallucination rerun reported zero failures, zero unsupported claims, and one
+capability-aware image skip. Do not compare v2 scores directly with unversioned rows without noting
+the prompt change. Photographic, camera, and vision workloads remain capability-skipped for this
+text-only model.

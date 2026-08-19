@@ -22,8 +22,8 @@ All notable changes to this project are documented here.
   list. The validation run improved patch application from 80% to 100% and appropriate no-change
   behavior from 0% to 100%.
 - Executable prompts now discourage style-only rewrites, and hallucination prompts define a strict
-  evidence/abstention contract. The first v2 validation reached 100% executable minimality and 3/3
-  correct abstentions on supported text cases.
+  evidence/abstention contract. Validation reached 100% executable minimality and a 10.0/10
+  hallucination score with 3/3 correct abstentions on supported text cases.
 - Text-only capabilities are skipped rather than scored as intelligence failures.
 - Explicit model overrides now select the overridden model's runtime instead of inheriting an
   unrelated active server runtime.
