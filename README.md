@@ -107,7 +107,8 @@ uv run local-mlx benchmark --model qwen --context-size 2048 --category coding
 
 The extended suite adds fixture-backed REST consumption, image-via-REST analysis, privacy-safe
 camera scenes and temporal changes, mixed JSON/text/image extraction, fictional NFL/NBA/MLB-style
-matchups, deterministic Python features versus model arithmetic, hallucination resistance, REST
+matchups, StatSpace-style recommendation and ledger audits, deterministic Python features versus
+model arithmetic, hallucination resistance, REST
 tool planning, and repository navigation/change tasks.
 
 ```bash

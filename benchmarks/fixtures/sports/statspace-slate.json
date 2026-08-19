@@ -1,0 +1,95 @@
+{
+  "as_of": "2026-08-19T17:00:00Z",
+  "policy": {
+    "minimum_edge": 0.05,
+    "minimum_expected_value": 0.04,
+    "required_sources": ["model", "odds", "schedule"],
+    "usable_side_price_required_for_production": true,
+    "below_threshold_status": "watchlist",
+    "ordered_precedence": [
+      "exclude older snapshots superseded by a newer snapshot for the same canonical_game_id",
+      "exclude events whose event_status is not scheduled",
+      "classify candidates without a usable side_price as paper_only",
+      "exclude candidates with an unhealthy candidate_sources value for a required source",
+      "recommend candidates meeting both minimum_edge and minimum_expected_value",
+      "otherwise use below_threshold_status"
+    ]
+  },
+  "source_health": {
+    "model": "healthy",
+    "odds": "degraded",
+    "schedule": "healthy"
+  },
+  "candidates": [
+    {
+      "market_id": "mlb-north-south-new",
+      "canonical_game_id": "mlb-north-south",
+      "snapshot_at": "2026-08-19T16:58:00Z",
+      "event_status": "scheduled",
+      "model_probability": 0.61,
+      "implied_probability": 0.53,
+      "edge": 0.08,
+      "expected_value": 0.11,
+      "side_price": 112,
+      "candidate_sources": {"model": "healthy", "odds": "healthy", "schedule": "healthy"}
+    },
+    {
+      "market_id": "mlb-north-south-old",
+      "canonical_game_id": "mlb-north-south",
+      "snapshot_at": "2026-08-19T16:40:00Z",
+      "event_status": "scheduled",
+      "model_probability": 0.59,
+      "implied_probability": 0.53,
+      "edge": 0.06,
+      "expected_value": 0.07,
+      "side_price": 110,
+      "candidate_sources": {"model": "healthy", "odds": "healthy", "schedule": "healthy"}
+    },
+    {
+      "market_id": "mlb-east-west-unpriced",
+      "canonical_game_id": "mlb-east-west",
+      "snapshot_at": "2026-08-19T16:55:00Z",
+      "event_status": "scheduled",
+      "model_probability": 0.64,
+      "implied_probability": null,
+      "edge": 0.09,
+      "expected_value": null,
+      "side_price": null,
+      "candidate_sources": {"model": "healthy", "odds": "healthy", "schedule": "healthy"}
+    },
+    {
+      "market_id": "mlb-river-lake-thin",
+      "canonical_game_id": "mlb-river-lake",
+      "snapshot_at": "2026-08-19T16:52:00Z",
+      "event_status": "scheduled",
+      "model_probability": 0.55,
+      "implied_probability": 0.52,
+      "edge": 0.03,
+      "expected_value": 0.02,
+      "side_price": 105,
+      "candidate_sources": {"model": "healthy", "odds": "healthy", "schedule": "healthy"}
+    },
+    {
+      "market_id": "mlb-hill-coast-started",
+      "canonical_game_id": "mlb-hill-coast",
+      "snapshot_at": "2026-08-19T16:50:00Z",
+      "event_status": "live",
+      "model_probability": 0.68,
+      "implied_probability": 0.55,
+      "edge": 0.13,
+      "expected_value": 0.18,
+      "side_price": 120,
+      "candidate_sources": {"model": "healthy", "odds": "healthy", "schedule": "healthy"}
+    }
+  ],
+  "expected": {
+    "decisions": {
+      "mlb-north-south-new": "recommended",
+      "mlb-north-south-old": "excluded",
+      "mlb-east-west-unpriced": "paper_only",
+      "mlb-river-lake-thin": "watchlist",
+      "mlb-hill-coast-started": "excluded"
+    },
+    "superseded_market_ids": ["mlb-north-south-old"]
+  }
+}

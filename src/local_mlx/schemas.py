@@ -70,6 +70,33 @@ class SportsPrediction(BaseModel):
     confidence: float = Field(ge=0, le=1)
 
 
+class MarketDecision(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    market_id: str
+    status: Literal["recommended", "watchlist", "paper_only", "excluded"]
+    reason: str
+
+
+class SportsSlateAssessment(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    decisions: list[MarketDecision] = Field(min_length=1)
+    superseded_market_ids: list[str] = Field(
+        description="Only older snapshots excluded in favor of a newer snapshot for the same game."
+    )
+    data_quality_issues: list[str]
+
+
+class LedgerSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    wins: int = Field(ge=0)
+    losses: int = Field(ge=0)
+    pushes: int = Field(ge=0)
+    pending: int = Field(ge=0)
+    graded_bets: int = Field(ge=0)
+    net_units: float
+    roi: float
+
+
 class RetrievalPlan(BaseModel):
     model_config = ConfigDict(extra="forbid")
     endpoints: list[str] = Field(min_length=1, max_length=4)

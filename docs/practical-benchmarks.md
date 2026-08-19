@@ -22,8 +22,10 @@ of deterministic per-case values in `[0, 1]`, multiplied by ten:
 - Vision: required facts visible in the supplied synthetic diagram, screenshot, chart, or combined
   JSON/text/image sources.
 - Sports: valid probabilities, internally consistent factors, source-grounded evidence, and a
-  separate arithmetic case. Winner outcome, Brier score, and log loss are reported but do not erase
-  a sensible losing prediction.
+  separate arithmetic case. StatSpace-style cases also test recommendation gates, missing-price
+  paper tracking, duplicate snapshots, started-event exclusion, degraded-source awareness, and
+  ledger settlement/ROI accounting. Winner outcome, Brier score, and log loss are reported but do
+  not erase a sensible losing prediction.
 - Natural hallucination: appropriate abstention from a conventional source-grounding instruction,
   without requiring a sentinel phrase.
 - Guardrailed hallucination: appropriate abstention under an explicit missing-field policy and
@@ -60,6 +62,10 @@ and newly added comment lines as separate edit-quality signals.
 begin with `INSUFFICIENT_EVIDENCE`. Historical `hallucination-v2` results used the strict contract and
 remain labeled as legacy rows in the consolidated report. Results without prompt-version fields
 predate prompt versioning and should not be used as like-for-like evidence of a prompt improvement.
+`statspace-slate-v2` gives an ordered gate precedence and defines superseded IDs as older snapshots
+only. `statspace-ledger-v2` explicitly counts pushes as graded and includes their stake in the ROI
+denominator. Its `statspace-ledger-partial-v2` scorer awards count accuracy per field while retaining
+exact net-unit and ROI checks. Earlier StatSpace-style rows should not be compared as like-for-like.
 
 Pairwise category winners require at least 0.30 points on the 10-point scale. Difficulty-tier
 winners require at least 3 percentage points. Smaller gaps are reported as `Tie / no meaningful

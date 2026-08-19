@@ -4,7 +4,7 @@ import math
 import re
 from collections.abc import Iterable
 
-from local_mlx.schemas import CameraScene, SportsPrediction
+from local_mlx.schemas import CameraScene, LedgerSummary, SportsPrediction
 
 ABSTENTION_PATTERNS = (
     "insufficient evidence",
@@ -79,6 +79,18 @@ def sports_score(prediction: SportsPrediction, fixture: dict, prompt_source: str
         "evidence_grounding": evidence_grounding(
             (factor.evidence for factor in prediction.key_factors), prompt_source
         ),
+    }
+
+
+def ledger_audit_score(summary: LedgerSummary, expected: dict) -> dict[str, float]:
+    count_fields = ("wins", "losses", "pushes", "pending", "graded_bets")
+    count_accuracy = sum(
+        getattr(summary, field) == expected[field] for field in count_fields
+    ) / len(count_fields)
+    return {
+        "settlement_count_accuracy": count_accuracy,
+        "net_units_accuracy": float(abs(summary.net_units - expected["net_units"]) <= 0.005),
+        "roi_accuracy": float(abs(summary.roi - expected["roi"]) <= 0.005),
     }
 
 
