@@ -26,6 +26,8 @@ class ModelConfig(BaseModel):
     startup_command: str
     startup_args: list[str] = []
     responses_api: bool = False
+    request_profile: str = "default"
+    chat_template: str | None = None
     notes: str = ""
 
     @property

@@ -7,6 +7,7 @@ from collections.abc import Iterable
 from local_mlx.schemas import CameraScene, SportsPrediction
 
 ABSTENTION_PATTERNS = (
+    "insufficient evidence",
     "not enough information",
     "does not contain enough information",
     "lacks enough evidence",
@@ -22,7 +23,7 @@ ABSTENTION_PATTERNS = (
 
 
 def abstained(text: str) -> bool:
-    lowered = re.sub(r"[*_`]", "", text.lower())
+    lowered = re.sub(r"[*`]", "", text.lower()).replace("_", " ")
     return any(pattern in lowered for pattern in ABSTENTION_PATTERNS) or bool(
         re.search(r"\bno\b.{0,80}\b(?:is|are) specified\b", lowered)
     )

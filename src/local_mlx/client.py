@@ -6,7 +6,7 @@ from typing import Any
 
 from openai import OpenAI
 
-from local_mlx.config import configured_base_url, load_models
+from local_mlx.config import configured_base_url, get_model, load_models
 from local_mlx.models import read_state
 
 
@@ -58,6 +58,10 @@ class LocalLLM:
         return result.choices[0].message.content or ""
 
     def stream(self, prompt: str, **kwargs: Any) -> Iterator[Any]:
+        state = read_state()
+        if state and get_model(state["alias"]).request_profile == "strict":
+            kwargs.setdefault("extra_body", {"enable_thinking": False})
+            kwargs.setdefault("logit_bias", {"100": -100, "101": -100})
         return self._client.chat.completions.create(
             model=self.model,
             messages=[{"role": "user", "content": prompt}],
@@ -69,7 +73,7 @@ class LocalLLM:
     def response(self, prompt: str, **kwargs: Any) -> str:
         state = read_state()
         model_id = self.model
-        runtime = state["runtime"] if state else next(
+        runtime = state["runtime"] if state and state["model_id"] == model_id else next(
             (cfg.runtime for cfg in load_models().values() if cfg.model_id == model_id), None
         )
         if runtime == "mlx-lm":

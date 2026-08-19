@@ -68,7 +68,7 @@ def read_state() -> dict | None:
 
 
 def server_command(model: ModelConfig) -> list[str]:
-    return [
+    command = [
         sys.executable,
         "-m",
         model.startup_command,
@@ -82,6 +82,9 @@ def server_command(model: ModelConfig) -> list[str]:
         "2048",
         *model.startup_args,
     ]
+    if model.chat_template:
+        command.extend(["--chat-template", model.chat_template])
+    return command
 
 
 def start(alias: str, timeout: int = 600) -> dict:

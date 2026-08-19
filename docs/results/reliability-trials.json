@@ -1,0 +1,588 @@
+{
+  "trials": {
+    "qwen": {
+      "ttft_seconds": {
+        "mean": 2.730197435897436,
+        "median": 0.9105,
+        "stdev": 7.9640888127329745,
+        "min": 0.2021,
+        "max": 47.6114
+      },
+      "tokens_per_second": {
+        "mean": 14.964333333333332,
+        "median": 17.708,
+        "stdev": 7.173755825864357,
+        "min": 0.084,
+        "max": 25.144
+      },
+      "output_tokens": {
+        "mean": 203.3846153846154,
+        "median": 123.0,
+        "stdev": 168.06274132074282,
+        "min": 4.0,
+        "max": 492.0
+      },
+      "schema_success_rate": 1,
+      "schema_observations": 15,
+      "peak_system_used_gb": 16.8,
+      "peak_swap_used_gb": 0.4,
+      "cases": {
+        "coding/implement_function": {
+          "quality": [
+            0.75,
+            0.75,
+            0.75
+          ],
+          "ttft_seconds": [
+            3.7418,
+            0.9105,
+            0.4796
+          ],
+          "tokens_per_second": [
+            2.036,
+            15.63,
+            21.747
+          ],
+          "changed": false
+        },
+        "coding/code_review": {
+          "quality": [
+            0.6666666666666666,
+            0.6666666666666666,
+            0.6666666666666666
+          ],
+          "ttft_seconds": [
+            2.3392,
+            0.2996,
+            0.2046
+          ],
+          "tokens_per_second": [
+            2.092,
+            15.948,
+            21.224
+          ],
+          "changed": false
+        },
+        "reasoning/architecture_tradeoffs": {
+          "quality": [
+            0.6666666666666666,
+            0.6666666666666666,
+            0.6666666666666666
+          ],
+          "ttft_seconds": [
+            0.2021,
+            0.3041,
+            0.3082
+          ],
+          "tokens_per_second": [
+            24.258,
+            15.912,
+            17.909
+          ],
+          "changed": false
+        },
+        "reasoning/incomplete_debugging": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            0.2024,
+            0.2975,
+            0.231
+          ],
+          "tokens_per_second": [
+            25.144,
+            15.907,
+            22.892
+          ],
+          "changed": false
+        },
+        "repository/architecture-navigation": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            1.1317,
+            1.6282,
+            1.1324
+          ],
+          "tokens_per_second": [
+            22.726,
+            14.999,
+            22.219
+          ],
+          "changed": false
+        },
+        "repository/appropriate-no-change": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            1.3136,
+            1.3452,
+            1.3583
+          ],
+          "tokens_per_second": [
+            18.727,
+            18.716,
+            18.683
+          ],
+          "changed": false
+        },
+        "hallucination/sports-absent-quarterback": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            0.4446,
+            0.6831,
+            0.4545
+          ],
+          "tokens_per_second": [
+            18.44,
+            12.034,
+            18.298
+          ],
+          "changed": false
+        },
+        "hallucination/api-absent-firmware": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            0.2103,
+            0.3057,
+            0.2115
+          ],
+          "tokens_per_second": [
+            17.708,
+            11.664,
+            17.68
+          ],
+          "changed": false
+        },
+        "camera/snow": {
+          "quality": [
+            0.75,
+            0.75,
+            0.75
+          ],
+          "ttft_seconds": [
+            1.0677,
+            0.8197,
+            0.6214
+          ],
+          "tokens_per_second": [
+            13.863,
+            18.518,
+            19.042
+          ],
+          "changed": false
+        },
+        "camera/lookalike-object": {
+          "quality": [
+            0.95,
+            0.95,
+            0.95
+          ],
+          "ttft_seconds": [
+            1.1105,
+            0.8383,
+            0.6117
+          ],
+          "tokens_per_second": [
+            13.869,
+            18.366,
+            19.226
+          ],
+          "changed": false
+        },
+        "sports/nfl-adversarial-noisy-upset": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            2.0251,
+            1.0915,
+            1.2106
+          ],
+          "tokens_per_second": [
+            14.162,
+            19.525,
+            19.27
+          ],
+          "changed": false
+        },
+        "rag/direct_answer": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            19.0033,
+            2.5557,
+            2.6223
+          ],
+          "tokens_per_second": [
+            1.008,
+            5.749,
+            5.637
+          ],
+          "changed": false
+        },
+        "rag/unanswerable": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            47.6114,
+            3.0558,
+            2.493
+          ],
+          "tokens_per_second": [
+            0.084,
+            1.203,
+            1.494
+          ],
+          "changed": false
+        }
+      }
+    },
+    "gemma": {
+      "ttft_seconds": {
+        "mean": 4.020330769230769,
+        "median": 0.9097,
+        "stdev": 9.483252944287848,
+        "min": 0.3411,
+        "max": 46.3068
+      },
+      "tokens_per_second": {
+        "mean": 11.055333333333333,
+        "median": 13.506,
+        "stdev": 5.394953896360899,
+        "min": 0.086,
+        "max": 15.937
+      },
+      "output_tokens": {
+        "mean": 306.79487179487177,
+        "median": 300.0,
+        "stdev": 249.0983931033953,
+        "min": 4.0,
+        "max": 800.0
+      },
+      "schema_success_rate": 0.4,
+      "schema_observations": 15,
+      "peak_system_used_gb": 16.5,
+      "peak_swap_used_gb": 0.4,
+      "cases": {
+        "coding/implement_function": {
+          "quality": [
+            0.75,
+            0.75,
+            0.75
+          ],
+          "ttft_seconds": [
+            0.8349,
+            0.9712,
+            0.6097
+          ],
+          "tokens_per_second": [
+            14.442,
+            11.238,
+            14.039
+          ],
+          "changed": false
+        },
+        "coding/code_review": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            0.368,
+            0.3984,
+            0.3698
+          ],
+          "tokens_per_second": [
+            15.044,
+            15.717,
+            15.314
+          ],
+          "changed": false
+        },
+        "reasoning/architecture_tradeoffs": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            0.3583,
+            0.3524,
+            0.387
+          ],
+          "tokens_per_second": [
+            15.937,
+            15.754,
+            13.862
+          ],
+          "changed": false
+        },
+        "reasoning/incomplete_debugging": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            0.3582,
+            0.557,
+            0.3411
+          ],
+          "tokens_per_second": [
+            15.35,
+            10.026,
+            15.439
+          ],
+          "changed": false
+        },
+        "repository/architecture-navigation": {
+          "quality": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ttft_seconds": [
+            13.0657,
+            2.5793,
+            2.1868
+          ],
+          "tokens_per_second": [
+            2.765,
+            13.506,
+            13.93
+          ],
+          "changed": false
+        },
+        "repository/appropriate-no-change": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            12.5966,
+            2.3585,
+            2.3012
+          ],
+          "tokens_per_second": [
+            1.378,
+            11.534,
+            10.588
+          ],
+          "changed": false
+        },
+        "hallucination/sports-absent-quarterback": {
+          "quality": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ttft_seconds": [
+            0.9145,
+            1.4587,
+            1.0048
+          ],
+          "tokens_per_second": [
+            15.075,
+            9.604,
+            13.328
+          ],
+          "changed": false
+        },
+        "hallucination/api-absent-firmware": {
+          "quality": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ttft_seconds": [
+            0.5696,
+            0.8973,
+            0.6389
+          ],
+          "tokens_per_second": [
+            15.852,
+            10.027,
+            13.467
+          ],
+          "changed": false
+        },
+        "camera/snow": {
+          "quality": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ttft_seconds": [
+            0.8167,
+            0.9097,
+            0.8374
+          ],
+          "tokens_per_second": [
+            15.558,
+            14.631,
+            15.373
+          ],
+          "changed": false
+        },
+        "camera/lookalike-object": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            0.8186,
+            0.8257,
+            0.813
+          ],
+          "tokens_per_second": [
+            14.825,
+            14.635,
+            14.571
+          ],
+          "changed": false
+        },
+        "sports/nfl-adversarial-noisy-upset": {
+          "quality": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "ttft_seconds": [
+            1.5397,
+            1.7329,
+            1.6647
+          ],
+          "tokens_per_second": [
+            3.34,
+            13.352,
+            12.164
+          ],
+          "changed": false
+        },
+        "rag/direct_answer": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            38.323,
+            3.9981,
+            4.024
+          ],
+          "tokens_per_second": [
+            0.497,
+            3.498,
+            3.461
+          ],
+          "changed": false
+        },
+        "rag/unanswerable": {
+          "quality": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "ttft_seconds": [
+            46.3068,
+            3.8135,
+            3.8912
+          ],
+          "tokens_per_second": [
+            0.086,
+            0.983,
+            0.968
+          ],
+          "changed": false
+        }
+      }
+    }
+  },
+  "routing": {
+    "coding": {
+      "qwen": 1.0,
+      "gemma": 0.8,
+      "recommendation": "Qwen"
+    },
+    "reasoning": {
+      "qwen": 0.8333333333333333,
+      "gemma": 1.0,
+      "recommendation": "Gemma"
+    },
+    "repository": {
+      "qwen": 1.0,
+      "gemma": 0.5,
+      "recommendation": "Qwen"
+    },
+    "multimodal": {
+      "qwen": 0.934375,
+      "gemma": 0.840625,
+      "recommendation": "Qwen"
+    },
+    "vision": {
+      "qwen": 0.934375,
+      "gemma": 0.840625,
+      "recommendation": "Qwen"
+    },
+    "camera": {
+      "qwen": 0.9143749999999999,
+      "gemma": 0.910625,
+      "recommendation": "No meaningful difference"
+    },
+    "rag": {
+      "qwen": 0.9994212962962963,
+      "gemma": 0.9495093795093795,
+      "recommendation": "No meaningful difference"
+    },
+    "sports": {
+      "qwen": 1.0,
+      "gemma": 0.0,
+      "recommendation": "Qwen"
+    },
+    "hallucination": {
+      "qwen": 1.0,
+      "gemma": 0.0,
+      "recommendation": "Qwen"
+    },
+    "long_context": {
+      "qwen": 1.0,
+      "gemma": 0.6090592334494773,
+      "recommendation": "Qwen",
+      "basis": "16K quality tied; normalized throughput breaks the tie"
+    },
+    "default": {
+      "qwen": 0.7777777777777778,
+      "gemma": 0.1111111111111111,
+      "recommendation": "Qwen"
+    }
+  }
+}

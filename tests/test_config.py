@@ -7,7 +7,10 @@ def test_exact_registry() -> None:
     assert {key: value.model_id for key, value in models.items()} == {
         "qwen": "mlx-community/Qwen3.5-9B-4bit",
         "gptoss": "mlx-community/gpt-oss-20b-MXFP4-Q8",
+        "gptoss-final": "mlx-community/gpt-oss-20b-MXFP4-Q8",
         "gemma": "mlx-community/gemma-4-12B-it-4bit",
+        "gemma-default": "mlx-community/gemma-4-12B-it-4bit",
+        "gemma-strict": "mlx-community/gemma-4-12B-it-4bit",
     }
 
 
@@ -22,3 +25,7 @@ def test_runtime_split() -> None:
     assert get_model("qwen").responses_api
     assert get_model("gemma").responses_api
     assert not get_model("gptoss").responses_api
+    assert get_model("gptoss-final").request_profile == "final-json"
+    assert "<|channel|>final" in get_model("gptoss-final").chat_template
+    assert get_model("gemma-default").request_profile == "default"
+    assert get_model("gemma-strict").request_profile == "strict"

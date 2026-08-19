@@ -46,6 +46,13 @@ Every comparison row is tagged `easy`, `medium`, `hard`, or `adversarial`. Camer
 repository, and hallucination each contain all four tiers. The repository adversarial case rewards
 an explicit no-change decision when behavior matches the supplied contract.
 
+Prompt contracts that materially affect scoring are versioned in JSONL rows. `executable-v2`
+requires boolean/list consistency for no-change decisions and explicitly prohibits style-only
+comments, docstrings, helpers, and refactors. `hallucination-v2` defines missing source fields as
+unknown and requires answers to begin with `INSUFFICIENT_EVIDENCE` when the requested fact is not
+directly supported. Results without these fields predate prompt versioning and should not be used as
+like-for-like evidence of a prompt improvement.
+
 Pairwise category winners require at least 0.30 points on the 10-point scale. Difficulty-tier
 winners require at least 3 percentage points. Smaller gaps are reported as `Tie / no meaningful
 difference`. Performance uses separate practical margins (0.15 seconds for median TTFT, 0.75 tok/s
@@ -78,6 +85,9 @@ make bench-sports MODEL=qwen
 make bench-agentic MODEL=qwen
 make bench-hallucination MODEL=qwen
 make bench-rag MODEL=qwen CONTEXT=2048
+make bench-executable MODEL=qwen
+make bench-realistic-rag MODEL=qwen
+make bench-photographic MODEL=qwen
 make bench-full MODEL=qwen
 make compare MODEL_A=qwen MODEL_B=gemma
 ```

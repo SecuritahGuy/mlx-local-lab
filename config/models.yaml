@@ -29,6 +29,34 @@ models:
     startup_args: [--prompt-cache-size, "1", --prefill-step-size, "2048"]
     responses_api: false
     notes: Text-only MoE; largest memory footprint here. mlx-lm lacks /v1/responses.
+  gptoss-final:
+    name: GPT-OSS 20B MXFP4-Q8 (final-channel JSON requests)
+    model_id: mlx-community/gpt-oss-20b-MXFP4-Q8
+    runtime: mlx-lm
+    port: 8080
+    model_type: text-generation
+    multimodal: false
+    reasoning: true
+    context_limit: 16384
+    temperature: 0.1
+    estimated_download_gb: 12.1
+    startup_command: mlx_lm.server
+    startup_args: [--prompt-cache-size, "1", --prefill-step-size, "2048"]
+    responses_api: false
+    request_profile: final-json
+    chat_template: |-
+      <|start|>system<|message|>You are ChatGPT, a large language model trained by OpenAI.
+      Knowledge cutoff: 2024-06
+      Reasoning: low
+      # Valid channels: final. Return only the requested final answer.<|end|>
+      {%- for message in messages %}
+      {%- if message.role == "system" or message.role == "developer" %}<|start|>developer<|message|>{{ message.content }}<|end|>
+      {%- elif message.role == "user" %}<|start|>user<|message|>{{ message.content }}<|end|>
+      {%- elif message.role == "assistant" %}<|start|>assistant<|channel|>final<|message|>{{ message.content }}<|end|>
+      {%- endif %}
+      {%- endfor %}
+      {%- if add_generation_prompt %}<|start|>assistant<|channel|>final<|message|>{%- endif %}
+    notes: Forces the final Harmony channel and injects JSON schemas because mlx-lm 0.31.3 does not parse GPT-OSS Harmony channels or enforce response_format.
   gemma:
     name: Gemma 4 12B IT 4-bit
     model_id: mlx-community/gemma-4-12B-it-4bit
@@ -44,3 +72,35 @@ models:
     startup_args: [--max-kv-size, "16384", --max-num-seqs, "1", --vision-cache-size, "1"]
     responses_api: true
     notes: Multimodal instruction model; evaluate structured output and RAG carefully.
+  gemma-default:
+    name: Gemma 4 12B IT 4-bit (default requests)
+    model_id: mlx-community/gemma-4-12B-it-4bit
+    runtime: mlx-vlm
+    port: 8080
+    model_type: image-text-to-text
+    multimodal: true
+    reasoning: false
+    context_limit: 16384
+    temperature: 0.1
+    estimated_download_gb: 6.77
+    startup_command: mlx_vlm.server
+    startup_args: [--max-kv-size, "16384", --max-num-seqs, "1", --vision-cache-size, "1"]
+    responses_api: true
+    request_profile: default
+    notes: Alias used to make default-versus-strict Gemma request tests explicit.
+  gemma-strict:
+    name: Gemma 4 12B IT 4-bit (strict requests)
+    model_id: mlx-community/gemma-4-12B-it-4bit
+    runtime: mlx-vlm
+    port: 8080
+    model_type: image-text-to-text
+    multimodal: true
+    reasoning: false
+    context_limit: 16384
+    temperature: 0.1
+    estimated_download_gb: 6.77
+    startup_command: mlx_vlm.server
+    startup_args: [--max-kv-size, "16384", --max-num-seqs, "1", --vision-cache-size, "1"]
+    responses_api: true
+    request_profile: strict
+    notes: Suppresses Gemma channel-control generation and requires raw schema output; never repairs output.

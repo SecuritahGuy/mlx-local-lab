@@ -1,0 +1,72 @@
+{
+  "dogs-porch": {
+    "person_present": true,
+    "person_count": 1,
+    "package_present": false,
+    "vehicle_present": false,
+    "animal_present": true,
+    "door_open": false,
+    "lighting": "day",
+    "weather_visible": "clear"
+  },
+  "night-porch": {
+    "person_present": false,
+    "person_count": 0,
+    "package_present": false,
+    "vehicle_present": false,
+    "animal_present": false,
+    "door_open": false,
+    "lighting": "night",
+    "weather_visible": "clear"
+  },
+  "open-door": {
+    "person_present": false,
+    "person_count": 0,
+    "package_present": false,
+    "vehicle_present": false,
+    "animal_present": false,
+    "door_open": true,
+    "lighting": "day",
+    "weather_visible": "uncertain"
+  },
+  "parked-vehicle": {
+    "person_present": false,
+    "person_count": 0,
+    "package_present": false,
+    "vehicle_present": true,
+    "animal_present": false,
+    "door_open": false,
+    "lighting": "day",
+    "weather_visible": "clear"
+  },
+  "partially-obscured-packages": {
+    "person_present": true,
+    "person_count": 1,
+    "package_present": true,
+    "vehicle_present": false,
+    "animal_present": false,
+    "door_open": false,
+    "lighting": "day",
+    "weather_visible": "clear"
+  },
+  "snow-car": {
+    "person_present": false,
+    "person_count": 0,
+    "package_present": false,
+    "vehicle_present": true,
+    "animal_present": false,
+    "door_open": false,
+    "lighting": "day",
+    "weather_visible": "snow"
+  },
+  "snow-driveway": {
+    "person_present": false,
+    "person_count": 0,
+    "package_present": false,
+    "vehicle_present": true,
+    "animal_present": false,
+    "door_open": false,
+    "lighting": "day",
+    "weather_visible": "snow"
+  }
+}

@@ -8,6 +8,12 @@ import httpx
 import typer
 from rich import print
 
+from local_mlx.advanced import (
+    run_executable,
+    run_photographic,
+    run_realistic_rag,
+    write_reliability_report,
+)
 from local_mlx.benchmark import comparison_report, run_suite
 from local_mlx.comparison import compare_models
 from local_mlx.config import ROOT, get_model, load_models
@@ -103,6 +109,30 @@ def practical_command(
 def compare_command(model_a: str, model_b: str) -> None:
     report, _ = compare_models(model_a, model_b)
     print(f"Comparison: {report}")
+
+
+@app.command("bench-executable")
+def bench_executable(model: str = typer.Option(...)) -> None:
+    jsonl, report = run_executable(model)
+    print(f"Results: {jsonl}\nSummary: {report}")
+
+
+@app.command("bench-realistic-rag")
+def bench_realistic_rag(model: str = typer.Option(...)) -> None:
+    jsonl, report = run_realistic_rag(model)
+    print(f"Results: {jsonl}\nSummary: {report}")
+
+
+@app.command("bench-photographic")
+def bench_photographic(model: str = typer.Option(...)) -> None:
+    jsonl, report = run_photographic(model)
+    print(f"Results: {jsonl}\nSummary: {report}")
+
+
+@app.command("reliability-report")
+def reliability_report() -> None:
+    data, report = write_reliability_report()
+    print(f"Data: {data}\nReport: {report}")
 
 
 @app.command()
