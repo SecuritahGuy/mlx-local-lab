@@ -24,7 +24,10 @@ of deterministic per-case values in `[0, 1]`, multiplied by ten:
 - Sports: valid probabilities, internally consistent factors, source-grounded evidence, and a
   separate arithmetic case. Winner outcome, Brier score, and log loss are reported but do not erase
   a sensible losing prediction.
-- Hallucination: appropriate explicit abstention when the requested fact is absent.
+- Natural hallucination: appropriate abstention from a conventional source-grounding instruction,
+  without requiring a sentinel phrase.
+- Guardrailed hallucination: appropriate abstention under an explicit missing-field policy and
+  required `INSUFFICIENT_EVIDENCE` prefix.
 - Agentic: correct minimal endpoint selection and successful completion after retrieval.
 - Repository: expected-file recall, a restricted write target, and focused test success in a
   temporary fixture copy.
@@ -46,12 +49,17 @@ Every comparison row is tagged `easy`, `medium`, `hard`, or `adversarial`. Camer
 repository, and hallucination each contain all four tiers. The repository adversarial case rewards
 an explicit no-change decision when behavior matches the supplied contract.
 
-Prompt contracts that materially affect scoring are versioned in JSONL rows. `executable-v2`
-requires boolean/list consistency for no-change decisions and explicitly prohibits style-only
-comments, docstrings, helpers, and refactors. `hallucination-v2` defines missing source fields as
-unknown and requires answers to begin with `INSUFFICIENT_EVIDENCE` when the requested fact is not
-directly supported. Results without these fields predate prompt versioning and should not be used as
-like-for-like evidence of a prompt improvement.
+Prompt and scorer contracts that materially affect interpretation are versioned in JSONL rows.
+`executable-v2` requires boolean/list consistency for no-change decisions and explicitly prohibits
+style-only comments, docstrings, helpers, and refactors. `minimality-v2` keeps targeted and full tests
+as the correctness authority, then reports strict reference-sized minimality, graded edit efficiency,
+and newly added comment lines as separate edit-quality signals.
+
+`hallucination-natural-v1` asks for source-only grounding and ordinary-language abstention.
+`hallucination-guardrailed-v1` additionally defines missing fields as unknown and requires answers to
+begin with `INSUFFICIENT_EVIDENCE`. Historical `hallucination-v2` results used the strict contract and
+remain labeled as legacy rows in the consolidated report. Results without prompt-version fields
+predate prompt versioning and should not be used as like-for-like evidence of a prompt improvement.
 
 Pairwise category winners require at least 0.30 points on the 10-point scale. Difficulty-tier
 winners require at least 3 percentage points. Smaller gaps are reported as `Tie / no meaningful
@@ -84,6 +92,8 @@ make bench-camera MODEL=qwen
 make bench-sports MODEL=qwen
 make bench-agentic MODEL=qwen
 make bench-hallucination MODEL=qwen
+make bench-hallucination-natural MODEL=qwen
+make bench-hallucination-guardrailed MODEL=qwen
 make bench-rag MODEL=qwen CONTEXT=2048
 make bench-executable MODEL=qwen
 make bench-realistic-rag MODEL=qwen

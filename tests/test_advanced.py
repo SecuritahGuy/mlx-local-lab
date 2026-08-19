@@ -4,6 +4,7 @@ from local_mlx.advanced import (
     EXECUTABLE_CASES,
     EXECUTABLE_INSTRUCTIONS,
     EXECUTABLE_PROMPT_VERSION,
+    EXECUTABLE_SCORER_VERSION,
     RAG_TARGET_CHARS,
     _winner,
     build_realistic_corpus,
@@ -22,6 +23,7 @@ def test_executable_prompt_defines_consistent_no_change_contract() -> None:
     assert "analysis must agree with change_required and changes" in normalized
     assert "Do not add explanatory comments, docstrings, helpers, or refactors" in normalized
     assert EXECUTABLE_PROMPT_VERSION == "executable-v2"
+    assert EXECUTABLE_SCORER_VERSION == "minimality-v2"
 
 
 def test_no_change_case_rewards_restraint(tmp_path: Path) -> None:
@@ -55,6 +57,31 @@ def test_unsafe_test_modification_is_rejected(tmp_path: Path) -> None:
     )
     result = evaluate_executable_change(workspace, change, EXECUTABLE_CASES["easy"])
     assert result["patch_applied"] == 0
+
+
+def test_minimality_reports_efficiency_and_added_comments(tmp_path: Path) -> None:
+    fixture = Path("benchmarks/fixtures/executable/easy")
+    workspace = tmp_path / "fixture"
+    import shutil
+
+    shutil.copytree(fixture, workspace)
+    target = workspace / "app/math_utils.py"
+    content = target.read_text().replace(
+        "return max(upper, max(lower, value))",
+        "# The upper bound must cap the value.\n    return min(upper, max(lower, value))",
+    )
+    change = ExecutableChange(
+        change_required=True,
+        changes=[FileReplacement(file="app/math_utils.py", content=content)],
+        analysis="Use min instead of the upper value.",
+        confidence=1,
+    )
+    result = evaluate_executable_change(workspace, change, EXECUTABLE_CASES["easy"])
+    assert result["full_suite_passed"] == 1
+    assert result["added_comment_lines"] == 1
+    assert result["reference_changed_lines"] == 2
+    assert result["edit_efficiency"] < 1
+    assert result["minimal_change_score"] == 0
 
 
 def test_empty_file_path_is_rejected_without_crashing(tmp_path: Path) -> None:
