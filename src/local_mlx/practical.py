@@ -77,8 +77,14 @@ DIFFICULTIES = {
     "appropriate-no-change": "adversarial",
 }
 
-HALLUCINATION_PROMPT_VERSION = "hallucination-v2"
-HALLUCINATION_EVIDENCE_POLICY = (
+HALLUCINATION_NATURAL_PROMPT_VERSION = "hallucination-natural-v1"
+HALLUCINATION_GUARDRAILED_PROMPT_VERSION = "hallucination-guardrailed-v1"
+HALLUCINATION_NATURAL_POLICY = (
+    "Answer only from the supplied source. Do not use outside knowledge or invent missing facts. "
+    "If the requested fact is unsupported, say that the source is insufficient and identify what "
+    "information is missing."
+)
+HALLUCINATION_GUARDRAILED_POLICY = (
     "Use only facts directly present in the supplied source. Missing fields are unknown: do not "
     "infer, guess, or fill them from general knowledge. If the source does not directly state the "
     "requested fact, begin the answer with INSUFFICIENT_EVIDENCE and briefly name what is missing."
@@ -471,16 +477,30 @@ def sports_cases(alias: str, source: RestDataSource) -> list[dict]:
     return rows
 
 
-def hallucination_cases(alias: str, source: RestDataSource) -> list[dict]:
+def hallucination_cases(
+    alias: str,
+    source: RestDataSource,
+    *,
+    guardrailed: bool = False,
+) -> list[dict]:
+    benchmark = "hallucination_guardrailed" if guardrailed else "hallucination_natural"
+    prompt_version = (
+        HALLUCINATION_GUARDRAILED_PROMPT_VERSION
+        if guardrailed
+        else HALLUCINATION_NATURAL_PROMPT_VERSION
+    )
+    evidence_policy = (
+        HALLUCINATION_GUARDRAILED_POLICY if guardrailed else HALLUCINATION_NATURAL_POLICY
+    )
     rows = []
     cases = []
     if get_model(alias).multimodal:
         image, retrieval = source.get_image("/api/cameras/front-door/snapshot/empty-day")
         cases.append(("camera-absent-person", "What color is the delivery driver's shirt? Explicitly say when the image lacks enough evidence.", [image], [retrieval]))
     else:
-        row = _base_row(alias, "hallucination", "camera-absent-person", [])
+        row = _base_row(alias, benchmark, "camera-absent-person", [])
         row.update({
-            "prompt_version": HALLUCINATION_PROMPT_VERSION,
+            "prompt_version": prompt_version,
             "supported": False,
             "skip_reason": "case requires an image but model registry marks this model text-only",
             "model_success": None,
@@ -502,12 +522,12 @@ def hallucination_cases(alias: str, source: RestDataSource) -> list[dict]:
     for name, prompt, images, retrievals in cases:
         call = model_call(
             alias,
-            HALLUCINATION_EVIDENCE_POLICY + "\n\nTASK:\n" + prompt,
+            evidence_policy + "\n\nTASK:\n" + prompt,
             images=images or None,
             max_tokens=160,
         )
-        row = _base_row(alias, "hallucination", name, retrievals)
-        row["prompt_version"] = HALLUCINATION_PROMPT_VERSION
+        row = _base_row(alias, benchmark, name, retrievals)
+        row["prompt_version"] = prompt_version
         row.update({key: value for key, value in call.items() if key != "parsed"})
         metrics = hallucination_score(call["output"], should_abstain=True)
         row["metrics"] = metrics
@@ -686,9 +706,20 @@ PROFILES = {
     "camera": ("camera",),
     "sports": ("sports",),
     "agentic": ("agentic", "repository", "repository_change"),
-    "rag": ("hallucination",),
-    "hallucination": ("hallucination",),
-    "full": ("vision", "camera", "sports", "hallucination", "agentic", "repository", "repository_change"),
+    "rag": ("hallucination_natural",),
+    "hallucination": ("hallucination_natural", "hallucination_guardrailed"),
+    "hallucination-natural": ("hallucination_natural",),
+    "hallucination-guardrailed": ("hallucination_guardrailed",),
+    "full": (
+        "vision",
+        "camera",
+        "sports",
+        "hallucination_natural",
+        "hallucination_guardrailed",
+        "agentic",
+        "repository",
+        "repository_change",
+    ),
 }
 
 
@@ -717,8 +748,10 @@ def run_practical(alias: str, profile: str) -> tuple[Path, Path]:
                 rows.extend(vision_cases(alias, source))
             elif category == "sports":
                 rows.extend(sports_cases(alias, source))
-            elif category == "hallucination":
+            elif category == "hallucination_natural":
                 rows.extend(hallucination_cases(alias, source))
+            elif category == "hallucination_guardrailed":
+                rows.extend(hallucination_cases(alias, source, guardrailed=True))
             elif category == "agentic":
                 rows.append(agentic_case(alias, source))
             elif category == "repository":
@@ -762,7 +795,8 @@ def write_practical_report(alias: str, profile: str, rows: list[dict]) -> tuple[
         "sports": "Sports",
         "agentic": "Agentic",
         "repository": "Agentic repository reasoning",
-        "hallucination": "Hallucination resistance",
+        "hallucination_natural": "Natural hallucination resistance",
+        "hallucination_guardrailed": "Guardrailed hallucination resistance",
         "structured_output": "Structured Output",
     }
     for category in dict.fromkeys(row["benchmark"] for row in rows):
@@ -777,7 +811,11 @@ def write_practical_report(alias: str, profile: str, rows: list[dict]) -> tuple[
     lines += ["", f"Overall (unweighted mean of displayed categories): {overall}/10"]
     failures = [row for row in rows if row.get("model_success") is False or row.get("infrastructure_failure")]
     skipped = [row for row in rows if row.get("supported") is False]
-    unsupported = [row for row in rows if row["benchmark"] == "hallucination" and row.get("metrics", {}).get("unsupported_claim_rate")]
+    unsupported = [
+        row for row in rows
+        if row["benchmark"].startswith("hallucination")
+        and row.get("metrics", {}).get("unsupported_claim_rate")
+    ]
     peak = max((row.get("memory", {}).get("peak_system_used_gb") or 0 for row in rows), default=0)
     swap = max((row.get("memory", {}).get("peak_swap_used_gb") or 0 for row in rows), default=0)
     lines += ["", "## Difficulty breakdown", "",

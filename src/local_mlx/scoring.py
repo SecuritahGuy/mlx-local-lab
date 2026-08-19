@@ -102,7 +102,8 @@ def recommendations(scores: dict[str, float]) -> list[str]:
         "sports": "Recommended for sports-data interpretation",
         "agentic": "Recommended for REST-assisted multi-step workflows",
         "repository": "Recommended for repository navigation",
-        "hallucination": "Recommended where abstention and grounding matter",
+        "hallucination_natural": "Recommended for natural-prompt abstention and grounding",
+        "hallucination_guardrailed": "Recommended with an explicit evidence contract",
     }
     result = [text for category, text in mapping.items() if scores.get(category, 0) >= 7.5]
     quality_values = [

@@ -12,12 +12,16 @@ All notable changes to this project are documented here.
 - Licensed photographic fixtures, provenance metadata, reliability reporting, and repeated-trial
   summaries.
 - `gptoss-final`, `gemma-default`, and `gemma-strict` request profiles.
-- Versioned `executable-v2` and `hallucination-v2` prompt contracts.
+- Versioned natural and guardrailed hallucination tracks.
 
 ### Changed
 
 - GPT-OSS structured requests now force the Harmony final channel and include the target JSON
   schema, raising the observed core mean quality from 70.2% to 90.1%.
+- Executable edit quality now includes `minimality-v2` graded edit efficiency and added-comment
+  detection while targeted and full tests remain the correctness authority.
+- Consolidated reliability output now includes GPT-OSS with per-case sample coverage and N/A values
+  for missing or insufficient repeated-trial data.
 - Executable no-change instructions now require a consistent false decision with an empty changes
   list. The validation run improved patch application from 80% to 100% and appropriate no-change
   behavior from 0% to 100%.

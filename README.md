@@ -117,6 +117,8 @@ make bench-camera MODEL=qwen
 make bench-sports MODEL=qwen
 make bench-agentic MODEL=qwen
 make bench-hallucination MODEL=qwen
+make bench-hallucination-natural MODEL=qwen
+make bench-hallucination-guardrailed MODEL=qwen
 make bench-rag MODEL=qwen CONTEXT=2048
 make bench-executable MODEL=qwen
 make bench-realistic-rag MODEL=qwen
@@ -131,9 +133,12 @@ quality are recorded separately, so HTTP failures do not count against model qua
 [`docs/practical-benchmarks.md`](docs/practical-benchmarks.md) for formulas, privacy boundaries,
 small-sample prediction caveats, score thresholds, and adding a future authenticated provider.
 The executable suite applies changes only inside disposable fixture copies and runs targeted plus
-full tests. Realistic RAG uses naturally sized repository/document corpora at approximately 2K,
-8K, and 16K. The photographic profile uses attributed Wikimedia Commons photographs and never asks
-a local model to generate imagery. Reviewed repeated-trial data is in
+full tests. Its minimality scorer reports both a strict reference-sized edit check and graded edit
+efficiency, including newly added comment lines. Hallucination evaluation has separate natural and
+explicitly guardrailed tracks; `bench-hallucination` runs both. Realistic RAG uses naturally sized
+repository/document corpora at approximately 2K, 8K, and 16K. The photographic profile uses
+attributed Wikimedia Commons photographs and never asks a local model to generate imagery. Reviewed
+repeated-trial data, including coverage-aware GPT-OSS results, is in
 [`docs/results/reliability-trials.md`](docs/results/reliability-trials.md).
 GPT-OSS results and open follow-ups are tracked in
 [`docs/results/gptoss-evaluation-2026-08-19.md`](docs/results/gptoss-evaluation-2026-08-19.md).

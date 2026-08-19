@@ -36,12 +36,15 @@ RELIABILITY_CASES = (
     ("rag", "direct_answer"),
     ("rag", "unanswerable"),
 )
+RELIABILITY_ALIASES = ("qwen", "gemma", "gptoss-final")
+MODEL_LABELS = {"qwen": "Qwen", "gemma": "Gemma", "gptoss-final": "GPT-OSS"}
 
 PHOTO_SYSTEM = """You analyze existing photographs for benign scene understanding only.
 Do not identify people or infer personal characteristics, identity, intent, criminality, or threat.
 Report only visible objects and explicit uncertainty. Return only schema-compliant JSON."""
 
 EXECUTABLE_PROMPT_VERSION = "executable-v2"
+EXECUTABLE_SCORER_VERSION = "minimality-v2"
 
 EXECUTABLE_INSTRUCTIONS = """Work on this isolated repository issue. Decide whether a change is required.
 If no source change is required, set change_required to false and changes to an empty list. Never
@@ -59,35 +62,35 @@ EXECUTABLE_CASES: dict[str, dict[str, Any]] = {
         "expected_files": {"app/math_utils.py"},
         "target": "tests/test_math_utils.py",
         "analysis_terms": ("upper", "min"),
-        "max_changed_lines": 4,
+        "reference_changed_lines": 2,
     },
     "medium": {
         "difficulty": "medium",
         "expected_files": {"app/client.py"},
         "target": "tests/test_client.py",
         "analysis_terms": ("millisecond", "second"),
-        "max_changed_lines": 4,
+        "reference_changed_lines": 2,
     },
     "hard": {
         "difficulty": "hard",
         "expected_files": {"app/config.py"},
         "target": "tests/test_api.py::test_default_and_false_are_safe",
         "analysis_terms": ("bool", "false"),
-        "max_changed_lines": 8,
+        "reference_changed_lines": 2,
     },
     "adversarial": {
         "difficulty": "adversarial",
         "expected_files": set(),
         "target": "tests/test_profiles.py",
         "analysis_terms": ("keyerror", "contract"),
-        "max_changed_lines": 0,
+        "reference_changed_lines": 0,
     },
     "security": {
         "difficulty": "security-sensitive",
         "expected_files": {"app/redirects.py"},
         "target": "tests/test_redirects.py::test_external_and_ambiguous_redirects_are_blocked",
         "analysis_terms": ("protocol", "backslash"),
-        "max_changed_lines": 8,
+        "reference_changed_lines": 2,
     },
 }
 
@@ -114,6 +117,14 @@ def _changed_lines(before: str, after: str) -> int:
     )
 
 
+def _added_comment_lines(before: str, after: str) -> int:
+    return sum(
+        line[1:].lstrip().startswith("#")
+        for line in difflib.unified_diff(before.splitlines(), after.splitlines())
+        if line.startswith("+") and not line.startswith("+++")
+    )
+
+
 def evaluate_executable_change(
     workspace: Path,
     parsed: ExecutableChange | None,
@@ -124,6 +135,7 @@ def evaluate_executable_change(
     safe = parsed is not None
     changed_files: list[str] = []
     changed_lines = 0
+    added_comment_lines = 0
     error = None
     if parsed is not None:
         if parsed.change_required != expects_change:
@@ -144,6 +156,7 @@ def evaluate_executable_change(
                 continue
             before = target.read_text()
             changed_lines += _changed_lines(before, change.content)
+            added_comment_lines += _added_comment_lines(before, change.content)
             target.write_text(change.content)
             changed_files.append(change.file)
     patch_applied = bool(safe and parsed is not None and (
@@ -152,11 +165,18 @@ def evaluate_executable_change(
     targeted_passed, targeted_output = _run_tests(workspace, case["target"])
     full_passed, full_output = _run_tests(workspace, "tests")
     unnecessary = sorted(set(changed_files) - expected_files)
+    reference_changed_lines = case["reference_changed_lines"]
+    edit_efficiency = (
+        1.0
+        if changed_lines == 0 and reference_changed_lines == 0
+        else min(reference_changed_lines / max(changed_lines, 1), 1.0)
+    )
     minimal = bool(
         patch_applied
         and full_passed
         and not unnecessary
-        and changed_lines <= case["max_changed_lines"]
+        and changed_lines <= reference_changed_lines
+        and added_comment_lines == 0
     )
     no_change = bool(not expects_change and parsed is not None and not parsed.change_required
                      and not parsed.changes and full_passed)
@@ -170,6 +190,9 @@ def evaluate_executable_change(
         "full_suite_passed": float(full_passed),
         "regression": float(targeted_passed and not full_passed),
         "minimal_change_score": float(minimal),
+        "edit_efficiency": edit_efficiency,
+        "added_comment_lines": added_comment_lines,
+        "reference_changed_lines": reference_changed_lines,
         "appropriate_no_change": float(no_change) if not expects_change else None,
         "analysis_quality": analysis_quality,
         "changed_files": changed_files,
@@ -205,6 +228,7 @@ def executable_case(alias: str, name: str) -> dict[str, Any]:
         evaluation["full_suite_passed"],
         1.0 - evaluation["regression"],
         evaluation["minimal_change_score"],
+        evaluation["edit_efficiency"],
         evaluation["analysis_quality"],
     ]
     if evaluation["appropriate_no_change"] is not None:
@@ -214,6 +238,7 @@ def executable_case(alias: str, name: str) -> dict[str, Any]:
         "model": alias,
         "benchmark": "executable_coding",
         "prompt_version": EXECUTABLE_PROMPT_VERSION,
+        "scorer_version": EXECUTABLE_SCORER_VERSION,
         "test": name,
         "difficulty": case["difficulty"],
         "quality_score": sum(quality_parts) / len(quality_parts),
@@ -234,8 +259,8 @@ def run_executable(alias: str) -> tuple[Path, Path]:
     lines = [
         f"# Executable coding: {alias}",
         "",
-        "| Case | Difficulty | Apply | Targeted | Full | Regression | Minimal | No change | Quality |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|",
+        "| Case | Difficulty | Apply | Targeted | Full | Regression | Minimal | Efficiency | Added comments | No change | Quality |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in rows:
         item = row["metrics"]
@@ -243,6 +268,7 @@ def run_executable(alias: str) -> tuple[Path, Path]:
             f"| {row['test']} | {row['difficulty']} | {item['patch_applied']} | "
             f"{item['targeted_tests_passed']} | {item['full_suite_passed']} | "
             f"{item['regression']} | {item['minimal_change_score']} | "
+            f"{item['edit_efficiency']:.3f} | {item['added_comment_lines']} | "
             f"{item['appropriate_no_change'] if item['appropriate_no_change'] is not None else '-'} | "
             f"{row['quality_score']:.3f} |"
         )
@@ -253,6 +279,8 @@ def run_executable(alias: str) -> tuple[Path, Path]:
         f"- full_test_pass_rate: {rate('full_suite_passed'):.1%}",
         f"- regression_rate: {rate('regression'):.1%}",
         f"- minimal_change_score: {rate('minimal_change_score'):.1%}",
+        f"- mean_edit_efficiency: {rate('edit_efficiency'):.1%}",
+        f"- added_comment_lines: {sum(row['added_comment_lines'] for row in metrics)}",
         f"- appropriate_no_change_rate: {rate('appropriate_no_change'):.1%}",
     ]
     markdown.write_text("\n".join(lines) + "\n")
@@ -628,6 +656,11 @@ def repeated_trial_data(alias: str) -> dict[tuple[str, str], list[dict[str, Any]
     selected: dict[tuple[str, str], list[dict[str, Any]]] = {}
     for key in RELIABILITY_CASES:
         matches = [row for row in rows if (row.get("benchmark"), row.get("test")) == key]
+        if matches:
+            latest_prompt_version = matches[-1].get("prompt_version")
+            matches = [
+                row for row in matches if row.get("prompt_version") == latest_prompt_version
+            ]
         selected[key] = matches[-3:]
     return selected
 
@@ -645,85 +678,172 @@ def _winner(qwen: float, gemma: float, margin: float = 0.05) -> str:
     return "Qwen" if qwen > gemma else "Gemma"
 
 
-def routing_recommendations() -> dict[str, dict[str, Any]]:
-    trials = {alias: repeated_trial_data(alias) for alias in ("qwen", "gemma")}
+def _winner_many(values: dict[str, float | None], margin: float = 0.05) -> str:
+    measured = sorted(
+        ((alias, value) for alias, value in values.items() if value is not None),
+        key=lambda item: item[1],
+        reverse=True,
+    )
+    if not measured:
+        return "Insufficient data"
+    if len(measured) > 1 and measured[0][1] - measured[1][1] < margin:
+        return "No meaningful difference"
+    return MODEL_LABELS.get(measured[0][0], measured[0][0])
 
-    def trial_quality(alias: str, categories: set[str]) -> float:
-        values = [
-            float(row["quality_score"])
+
+def routing_recommendations(
+    aliases: tuple[str, ...] = RELIABILITY_ALIASES,
+) -> dict[str, dict[str, Any]]:
+    trials = {alias: repeated_trial_data(alias) for alias in aliases}
+
+    def trial_quality(alias: str, categories: set[str]) -> float | None:
+        selected_rows = [
+            rows
             for (category, _), rows in trials[alias].items()
             if category in categories
+        ]
+        if not selected_rows or any(len(rows) != 3 for rows in selected_rows):
+            return None
+        values = [
+            float(row["quality_score"])
+            for rows in selected_rows
             for row in rows
             if row.get("quality_score") is not None
         ]
-        return statistics.mean(values)
+        return statistics.mean(values) if values else None
 
-    executable = {alias: _latest_result(alias, "executable") for alias in ("qwen", "gemma")}
-    photos = {alias: _latest_result(alias, "photographic") for alias in ("qwen", "gemma")}
-    synthetic_camera = {alias: _latest_result(alias, "camera") for alias in ("qwen", "gemma")}
-    synthetic_vision = {alias: _latest_result(alias, "vision") for alias in ("qwen", "gemma")}
-    realistic = {alias: _latest_result(alias, "realistic-rag") for alias in ("qwen", "gemma")}
+    executable = {alias: _latest_result(alias, "executable") for alias in aliases}
+    photos = {alias: _latest_result(alias, "photographic") for alias in aliases}
+    synthetic_camera = {alias: _latest_result(alias, "camera") for alias in aliases}
+    synthetic_vision = {alias: _latest_result(alias, "vision") for alias in aliases}
+    realistic = {alias: _latest_result(alias, "realistic-rag") for alias in aliases}
 
-    def mean_rows(rows: list[dict[str, Any]], field: str = "quality_score") -> float:
+    def mean_rows(
+        rows: list[dict[str, Any]], field: str = "quality_score"
+    ) -> float | None:
         values = [float(row[field]) for row in rows if row.get(field) is not None]
-        return statistics.mean(values)
+        return statistics.mean(values) if values else None
+
+    def mean_available(values: list[float | None]) -> float | None:
+        measured = [value for value in values if value is not None]
+        return statistics.mean(measured) if measured else None
 
     scores = {
         "coding": {
-            alias: statistics.mean(row["metrics"]["full_suite_passed"] for row in executable[alias])
-            for alias in ("qwen", "gemma")
+            alias: mean_available([
+                float(row["metrics"]["full_suite_passed"])
+                for row in executable[alias]
+                if row.get("metrics", {}).get("full_suite_passed") is not None
+            ])
+            for alias in aliases
         },
-        "reasoning": {alias: trial_quality(alias, {"reasoning"}) for alias in ("qwen", "gemma")},
-        "repository": {alias: trial_quality(alias, {"repository"}) for alias in ("qwen", "gemma")},
+        "reasoning": {alias: trial_quality(alias, {"reasoning"}) for alias in aliases},
+        "repository": {alias: trial_quality(alias, {"repository"}) for alias in aliases},
         "multimodal": {
-            alias: statistics.mean((mean_rows(synthetic_vision[alias]), mean_rows(photos[alias])))
-            for alias in ("qwen", "gemma")
+            alias: mean_available([mean_rows(synthetic_vision[alias]), mean_rows(photos[alias])])
+            for alias in aliases
         },
         "vision": {
-            alias: statistics.mean((mean_rows(synthetic_vision[alias]), mean_rows(photos[alias])))
-            for alias in ("qwen", "gemma")
+            alias: mean_available([mean_rows(synthetic_vision[alias]), mean_rows(photos[alias])])
+            for alias in aliases
         },
         "camera": {
-            alias: statistics.mean((mean_rows(synthetic_camera[alias]), mean_rows(photos[alias])))
-            for alias in ("qwen", "gemma")
+            alias: mean_available([mean_rows(synthetic_camera[alias]), mean_rows(photos[alias])])
+            for alias in aliases
         },
-        "rag": {alias: mean_rows(realistic[alias]) for alias in ("qwen", "gemma")},
-        "sports": {alias: trial_quality(alias, {"sports"}) for alias in ("qwen", "gemma")},
+        "rag": {alias: mean_rows(realistic[alias]) for alias in aliases},
+        "sports": {alias: trial_quality(alias, {"sports"}) for alias in aliases},
         "hallucination": {
-            alias: trial_quality(alias, {"hallucination"}) for alias in ("qwen", "gemma")
+            alias: trial_quality(alias, {"hallucination"}) for alias in aliases
         },
     }
     routed = {
         workload: {
-            "qwen": values["qwen"],
-            "gemma": values["gemma"],
-            "recommendation": _winner(values["qwen"], values["gemma"]),
+            **values,
+            "recommendation": _winner_many(values),
         }
         for workload, values in scores.items()
     }
     long_context_speed = {
-        alias: statistics.mean(
-            row["tokens_per_second"]
+        alias: mean_available([
+            float(row["tokens_per_second"])
             for row in realistic[alias]
-            if row.get("context_size") == 16384
-        )
-        for alias in ("qwen", "gemma")
+            if row.get("context_size") == 16384 and row.get("tokens_per_second") is not None
+        ])
+        for alias in aliases
     }
-    fastest = max(long_context_speed.values())
+    fastest = max((value for value in long_context_speed.values() if value is not None), default=0)
+    normalized_speed = {
+        alias: value / fastest if value is not None and fastest else None
+        for alias, value in long_context_speed.items()
+    }
     routed["long_context"] = {
-        "qwen": long_context_speed["qwen"] / fastest,
-        "gemma": long_context_speed["gemma"] / fastest,
-        "recommendation": "Qwen",
-        "basis": "16K quality tied; normalized throughput breaks the tie",
+        **normalized_speed,
+        "recommendation": _winner_many(normalized_speed),
+        "basis": "normalized 16K throughput; review quality and grounding alongside speed",
     }
-    qwen_wins = sum(item["recommendation"] == "Qwen" for item in routed.values())
-    gemma_wins = sum(item["recommendation"] == "Gemma" for item in routed.values())
+    wins = {
+        alias: sum(
+            item["recommendation"] == MODEL_LABELS.get(alias, alias)
+            for item in routed.values()
+        )
+        for alias in aliases
+    }
+    denominator = max(len(routed), 1)
+    complete = {
+        alias: all(item.get(alias) is not None for item in routed.values())
+        for alias in aliases
+    }
+    default_scores = {
+        alias: wins[alias] / denominator if complete[alias] else None
+        for alias in aliases
+    }
     routed["default"] = {
-        "qwen": qwen_wins / len(scores),
-        "gemma": gemma_wins / len(scores),
-        "recommendation": "Qwen" if qwen_wins > gemma_wins else _winner(qwen_wins, gemma_wins, 1),
+        **default_scores,
+        "recommendation": _winner_many(default_scores, margin=1 / denominator),
+        "basis": "share of workload recommendations; incomplete model coverage remains N/A",
     }
     return routed
+
+
+def _format_distribution(
+    label: str,
+    values: dict[str, float] | None,
+    unit: str,
+    *,
+    digits: int = 3,
+) -> str:
+    if values is None:
+        return f"- {label}: N/A"
+    return (
+        f"- {label}: mean {values['mean']:.{digits}f}{unit}; median "
+        f"{values['median']:.{digits}f}{unit}; SD {values['stdev']:.{digits}f}{unit}; "
+        f"range {values['min']:.{digits}f}–{values['max']:.{digits}f}{unit}"
+    )
+
+
+def _measured_distribution(
+    rows: list[dict[str, Any]], field: str
+) -> dict[str, float] | None:
+    values = [float(row[field]) for row in rows if row.get(field) is not None]
+    return distribution(values) if values else None
+
+
+def _format_memory(rows: list[dict[str, Any]]) -> str:
+    memory = [row.get("memory", {}) for row in rows]
+    if not memory:
+        return "- Peak system memory: N/A; peak swap: N/A"
+    peak_used = max((row.get("peak_system_used_gb") or 0 for row in memory), default=0)
+    peak_swap = max((row.get("peak_swap_used_gb") or 0 for row in memory), default=0)
+    return f"- Peak system memory: {peak_used:.2f} GB; peak swap: {peak_swap:.2f} GB"
+
+
+def _format_trials(values: list[float]) -> str:
+    return " / ".join(f"{value:.3f}" for value in values) if values else "N/A"
+
+
+def _format_percent(value: float | None) -> str:
+    return f"{value:.1%}" if value is not None else "N/A"
 
 
 def write_reliability_report() -> tuple[Path, Path]:
@@ -732,82 +852,106 @@ def write_reliability_report() -> tuple[Path, Path]:
     json_path = output_dir / "reliability-trials.json"
     markdown_path = output_dir / "reliability-trials.md"
     payload: dict[str, Any] = {"trials": {}, "routing": routing_recommendations()}
+    expected_cases = len(RELIABILITY_CASES)
+    expected_trials = expected_cases * 3
     lines = [
         "# Repeated-trial reliability",
         "",
-        "Each case retains its latest three valid trials. Standard deviation is sample standard deviation.",
+        (
+            "Each case retains up to its latest three valid, prompt-version-compatible trials. "
+            "Standard deviation is sample standard deviation; incomplete coverage is reported "
+            "as N/A."
+        ),
+        (
+            "Historical `hallucination/*` rows used the strict `hallucination-v2` evidence "
+            "contract. New runs record natural and guardrailed tracks separately."
+        ),
         "",
     ]
-    for alias in ("qwen", "gemma"):
+    for alias in RELIABILITY_ALIASES:
         selected = repeated_trial_data(alias)
-        missing = [f"{category}/{case}" for (category, case), rows in selected.items() if len(rows) != 3]
-        if missing:
-            raise RuntimeError(f"{alias} does not have three trials for: {', '.join(missing)}")
         flat = [row for rows in selected.values() for row in rows]
-        ttft = distribution([float(row["ttft_seconds"]) for row in flat])
-        throughput = distribution([float(row["tokens_per_second"]) for row in flat])
-        output_tokens = distribution([float(row["output_tokens"]) for row in flat])
+        complete_cases = sum(len(rows) == 3 for rows in selected.values())
+        observed_cases = sum(bool(rows) for rows in selected.values())
+        observed_trials = len(flat)
+
+        ttft = _measured_distribution(flat, "ttft_seconds")
+        throughput = _measured_distribution(flat, "tokens_per_second")
+        output_tokens = _measured_distribution(flat, "output_tokens")
         schema = [row["schema_valid"] for row in flat if row.get("schema_valid") is not None]
         cases: dict[str, Any] = {}
         lines += [
-            f"## {alias}",
+            f"## {MODEL_LABELS.get(alias, alias)} (`{alias}`)",
             "",
-            (f"- TTFT: mean {ttft['mean']:.3f}s; median {ttft['median']:.3f}s; "
-             f"SD {ttft['stdev']:.3f}s; range {ttft['min']:.3f}–{ttft['max']:.3f}s"),
-            (f"- Throughput: mean {throughput['mean']:.3f}; median "
-             f"{throughput['median']:.3f}; SD {throughput['stdev']:.3f}; range "
-             f"{throughput['min']:.3f}–{throughput['max']:.3f} tok/s"),
-            (f"- Output tokens: mean {output_tokens['mean']:.1f}; range "
-             f"{output_tokens['min']:.0f}–{output_tokens['max']:.0f}"),
-            (f"- Schema success where applicable: {sum(bool(value) for value in schema)}/"
-             f"{len(schema)} ({statistics.mean(bool(value) for value in schema):.1%})"),
-            (f"- Peak system memory: "
-             f"{max(row['memory']['peak_system_used_gb'] or 0 for row in flat):.2f} GB; "
-             f"peak swap: {max(row['memory']['peak_swap_used_gb'] or 0 for row in flat):.2f} GB"),
+            (
+                f"- Coverage: {observed_trials}/{expected_trials} trials across "
+                f"{observed_cases}/{expected_cases} cases; {complete_cases}/{expected_cases} "
+                "cases have three trials"
+            ),
+            (_format_distribution("TTFT", ttft, "s")),
+            (_format_distribution("Throughput", throughput, " tok/s")),
+            (_format_distribution("Output tokens", output_tokens, "", digits=1)),
+            (f"- Schema success where applicable: "
+             f"{f'{sum(bool(value) for value in schema)}/{len(schema)} ({statistics.mean(bool(value) for value in schema):.1%})' if schema else 'N/A'}"),
+            (_format_memory(flat)),
             "",
-            "| Case | Quality trials | TTFT trials (s) | Throughput trials (tok/s) | Changed? |",
-            "|---|---:|---:|---:|---:|",
+            "| Case | Coverage | Quality trials | TTFT trials (s) | Throughput trials (tok/s) | Changed? |",
+            "|---|---:|---:|---:|---:|---:|",
         ]
         for (category, case), rows in selected.items():
             values = [float(row["quality_score"]) for row in rows]
-            case_ttft = [float(row["ttft_seconds"]) for row in rows]
-            case_speed = [float(row["tokens_per_second"]) for row in rows]
+            case_ttft = [float(row["ttft_seconds"]) for row in rows if row.get("ttft_seconds") is not None]
+            case_speed = [float(row["tokens_per_second"]) for row in rows if row.get("tokens_per_second") is not None]
             changed = len({round(value, 8) for value in values}) > 1
             key = f"{category}/{case}"
             cases[key] = {
+                "coverage": len(rows),
                 "quality": values,
                 "ttft_seconds": case_ttft,
                 "tokens_per_second": case_speed,
                 "changed": changed,
             }
             lines.append(
-                f"| {key} | {' / '.join(f'{value:.3f}' for value in values)} | "
-                f"{' / '.join(f'{value:.3f}' for value in case_ttft)} | "
-                f"{' / '.join(f'{value:.3f}' for value in case_speed)} | "
-                f"{'yes' if changed else 'no'} |"
+                f"| {key} | {len(rows)}/3 | {_format_trials(values)} | "
+                f"{_format_trials(case_ttft)} | {_format_trials(case_speed)} | "
+                f"{'yes' if changed else 'no' if rows else 'N/A'} |"
             )
+        memory_rows = [row.get("memory", {}) for row in flat]
+        peak_memory = max((row.get("peak_system_used_gb") or 0 for row in memory_rows), default=None)
+        peak_swap = max((row.get("peak_swap_used_gb") or 0 for row in memory_rows), default=None)
         payload["trials"][alias] = {
+            "coverage": {
+                "observed_trials": observed_trials,
+                "expected_trials": expected_trials,
+                "observed_cases": observed_cases,
+                "expected_cases": expected_cases,
+                "complete_cases": complete_cases,
+            },
             "ttft_seconds": ttft,
             "tokens_per_second": throughput,
             "output_tokens": output_tokens,
-            "schema_success_rate": statistics.mean(bool(value) for value in schema),
+            "schema_success_rate": statistics.mean(bool(value) for value in schema) if schema else None,
             "schema_observations": len(schema),
-            "peak_system_used_gb": max(row["memory"]["peak_system_used_gb"] or 0 for row in flat),
-            "peak_swap_used_gb": max(row["memory"]["peak_swap_used_gb"] or 0 for row in flat),
+            "peak_system_used_gb": peak_memory,
+            "peak_swap_used_gb": peak_swap,
             "cases": cases,
         }
         lines.append("")
     lines += [
         "## Deterministic routing",
         "",
-        "A five-percentage-point margin is required; executable full-suite pass rate drives coding.",
+        (
+            "A five-percentage-point margin is required; executable full-suite pass rate drives "
+            "coding. N/A means the required benchmark data is unavailable."
+        ),
         "",
-        "| Workload | Qwen | Gemma | Recommendation |",
-        "|---|---:|---:|---|",
+        "| Workload | Qwen | Gemma | GPT-OSS | Recommendation |",
+        "|---|---:|---:|---:|---|",
     ]
     for workload, item in payload["routing"].items():
         lines.append(
-            f"| {workload} | {item['qwen']:.1%} | {item['gemma']:.1%} | "
+            f"| {workload} | {_format_percent(item['qwen'])} | "
+            f"{_format_percent(item['gemma'])} | {_format_percent(item['gptoss-final'])} | "
             f"{item['recommendation']} |"
         )
     json_path.write_text(json.dumps(payload, indent=2) + "\n")
