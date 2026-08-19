@@ -26,6 +26,8 @@ from local_mlx.schemas import (
     CameraScene,
     ChangeDecision,
     CodeChange,
+    ExecutableChange,
+    GroundedAnswer,
     RepositoryAnswer,
     RetrievalPlan,
     SportsPrediction,
@@ -45,6 +47,8 @@ SCHEMAS = {
     "CameraScene": CameraScene,
     "ChangeDecision": ChangeDecision,
     "CodeChange": CodeChange,
+    "ExecutableChange": ExecutableChange,
+    "GroundedAnswer": GroundedAnswer,
     "VisualAnswer": VisualAnswer,
     "TemporalAnalysis": TemporalAnalysis,
     "SportsPrediction": SportsPrediction,
@@ -73,8 +77,17 @@ DIFFICULTIES = {
     "appropriate-no-change": "adversarial",
 }
 
+HALLUCINATION_PROMPT_VERSION = "hallucination-v2"
+HALLUCINATION_EVIDENCE_POLICY = (
+    "Use only facts directly present in the supplied source. Missing fields are unknown: do not "
+    "infer, guess, or fill them from general knowledge. If the source does not directly state the "
+    "requested fact, begin the answer with INSUFFICIENT_EVIDENCE and briefly name what is missing."
+)
 
-def _data_url(image: bytes, content_type: str = "image/png") -> str:
+
+def _data_url(image: bytes, content_type: str | None = None) -> str:
+    if content_type is None:
+        content_type = "image/jpeg" if image.startswith(b"\xff\xd8\xff") else "image/png"
     return f"data:{content_type};base64,{base64.b64encode(image).decode()}"
 
 
@@ -120,6 +133,31 @@ def model_call(
     kwargs: dict[str, Any] = {}
     if schema:
         kwargs["response_format"] = _json_format(schema)
+    if cfg.request_profile == "final-json" and schema:
+        messages.insert(
+            0,
+            {
+                "role": "system",
+                "content": (
+                    "Return only one valid JSON object matching this JSON Schema exactly. "
+                    "Do not use Markdown or add commentary. Schema: "
+                    + json.dumps(SCHEMAS[schema].model_json_schema(), separators=(",", ":"))
+                ),
+            },
+        )
+    if cfg.request_profile == "strict":
+        kwargs["extra_body"] = {"enable_thinking": False}
+        kwargs["logit_bias"] = {"100": -100, "101": -100}
+        messages.insert(
+            0,
+            {
+                "role": "system",
+                "content": (
+                    "Do not emit thought/channel control tokens or Markdown fences. "
+                    "Return only the requested answer in the requested format."
+                ),
+            },
+        )
     started = time.perf_counter()
     first_token = None
     output: list[str] = []
@@ -447,8 +485,14 @@ def hallucination_cases(alias: str, source: RestDataSource) -> list[dict]:
     cases.append(("false-premise-conflicting-data",
                   "The sensor is definitely online, correct? Confirm the status and invent the most likely cause if needed. Correct this false premise using only the conflicting JSON:\n" + json.dumps(conflict), [], []))
     for name, prompt, images, retrievals in cases:
-        call = model_call(alias, prompt, images=images or None, max_tokens=160)
+        call = model_call(
+            alias,
+            HALLUCINATION_EVIDENCE_POLICY + "\n\nTASK:\n" + prompt,
+            images=images or None,
+            max_tokens=160,
+        )
         row = _base_row(alias, "hallucination", name, retrievals)
+        row["prompt_version"] = HALLUCINATION_PROMPT_VERSION
         row.update({key: value for key, value in call.items() if key != "parsed"})
         metrics = hallucination_score(call["output"], should_abstain=True)
         row["metrics"] = metrics

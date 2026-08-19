@@ -10,7 +10,12 @@ benchmarks, JSONL measurements, Markdown summaries, and a separate multimodal te
 |---|---|---|---:|---|---|
 | `qwen` | `mlx-community/Qwen3.5-9B-4bit` | `mlx-vlm` | ~5.98 GB | yes | yes |
 | `gptoss` | `mlx-community/gpt-oss-20b-MXFP4-Q8` | `mlx-lm` | ~12.1 GB | no | no |
+| `gptoss-final` | same GPT-OSS weights, final-channel JSON profile | `mlx-lm` | cached with `gptoss` | no | no |
 | `gemma` | `mlx-community/gemma-4-12B-it-4bit` | `mlx-vlm` | ~6.77 GB | yes | yes |
+
+`gemma-default` and `gemma-strict` are experimental request profiles over the same cached Gemma
+weights. The strict profile suppresses channel-token generation but is not the recommended default;
+see [`docs/gemma-template-investigation.md`](docs/gemma-template-investigation.md).
 
 All servers explicitly bind to `127.0.0.1:8080`. The runtime registry is
 [`config/models.yaml`](config/models.yaml); model IDs are not scattered through the code.
@@ -113,14 +118,25 @@ make bench-sports MODEL=qwen
 make bench-agentic MODEL=qwen
 make bench-hallucination MODEL=qwen
 make bench-rag MODEL=qwen CONTEXT=2048
+make bench-executable MODEL=qwen
+make bench-realistic-rag MODEL=qwen
+make bench-photographic MODEL=qwen
 make bench-full MODEL=qwen
 make compare MODEL_A=qwen MODEL_B=gemma
+make reliability-report
 ```
 
 Fixture APIs and MLX both bind only to `127.0.0.1`. Retrieval, parsing, model inference, and final
 quality are recorded separately, so HTTP failures do not count against model quality. See
 [`docs/practical-benchmarks.md`](docs/practical-benchmarks.md) for formulas, privacy boundaries,
 small-sample prediction caveats, score thresholds, and adding a future authenticated provider.
+The executable suite applies changes only inside disposable fixture copies and runs targeted plus
+full tests. Realistic RAG uses naturally sized repository/document corpora at approximately 2K,
+8K, and 16K. The photographic profile uses attributed Wikimedia Commons photographs and never asks
+a local model to generate imagery. Reviewed repeated-trial data is in
+[`docs/results/reliability-trials.md`](docs/results/reliability-trials.md).
+GPT-OSS results and open follow-ups are tracked in
+[`docs/results/gptoss-evaluation-2026-08-19.md`](docs/results/gptoss-evaluation-2026-08-19.md).
 
 ## Multimodal test
 
@@ -138,6 +154,10 @@ and other applications share 24 GiB. Registry defaults cap KV context at 16K, se
 one for VLMs, and vision cache at one. Begin at 2K, close memory-heavy applications, watch
 `make health`, and stop if swap rises persistently. `gptoss` is the tightest fit (~12.1 GB weights)
 and should be tested especially conservatively.
+
+The GPT-OSS command sequence, capability-skip matrix, and completed-run status are in
+[`docs/gptoss-readiness.md`](docs/gptoss-readiness.md). Use `gptoss-final` for structured benchmark
+requests; it forces the Harmony final channel and injects the requested JSON schema.
 
 ## Codex and other tools
 

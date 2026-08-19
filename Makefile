@@ -1,4 +1,4 @@
-.PHONY: setup info model stop health bench bench-all bench-fast bench-vision bench-camera bench-sports bench-agentic bench-hallucination bench-rag bench-full compare test lint check download multimodal
+.PHONY: setup info model stop health bench bench-all bench-fast bench-vision bench-camera bench-sports bench-agentic bench-hallucination bench-rag bench-full bench-executable bench-realistic-rag bench-photographic reliability-report compare test lint check download multimodal
 
 MODEL ?= qwen
 CONTEXT ?= 2048
@@ -53,6 +53,18 @@ bench-rag:
 
 bench-full:
 	uv run local-mlx practical --model $(MODEL) --profile full
+
+bench-executable:
+	uv run local-mlx bench-executable --model $(MODEL)
+
+bench-realistic-rag:
+	uv run local-mlx bench-realistic-rag --model $(MODEL)
+
+bench-photographic:
+	uv run local-mlx bench-photographic --model $(MODEL)
+
+reliability-report:
+	uv run local-mlx reliability-report
 
 compare:
 	uv run local-mlx compare $(MODEL_A) $(MODEL_B)

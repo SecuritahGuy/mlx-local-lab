@@ -97,3 +97,34 @@ class ChangeDecision(BaseModel):
     files: list[str]
     explanation: str
     confidence: float = Field(ge=0, le=1)
+
+
+class FileReplacement(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    file: str
+    content: str
+
+
+class ExecutableChange(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    change_required: bool = Field(
+        description="False exactly when no source change is needed; then changes must be empty."
+    )
+    changes: list[FileReplacement] = Field(
+        max_length=3,
+        description=(
+            "Complete replacement files. Must be empty when change_required is false and non-empty "
+            "when change_required is true."
+        ),
+    )
+    analysis: str = Field(description="Reasoning that must agree with change_required and changes.")
+    confidence: float = Field(ge=0, le=1)
+
+
+class GroundedAnswer(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    answer: str
+    citations: list[str] = Field(max_length=6)
+    evidence: list[str] = Field(max_length=6)
+    unsupported: bool
+    confidence: float = Field(ge=0, le=1)

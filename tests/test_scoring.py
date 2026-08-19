@@ -9,6 +9,7 @@ from local_mlx.scoring import (
 
 
 def test_abstention_and_unsupported_claim_scoring() -> None:
+    assert abstained("INSUFFICIENT_EVIDENCE: firmware_version is missing.")
     assert abstained("The provided data does not contain enough information.")
     assert abstained("No firmware version is specified in the provided JSON.")
     assert abstained("It is not possible to determine that from this image.")

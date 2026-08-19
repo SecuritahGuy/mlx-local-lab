@@ -1,7 +1,14 @@
 import json
 from unittest.mock import MagicMock, patch
 
-from local_mlx.practical import DIFFICULTIES, repository_tier_cases, run_practical
+from local_mlx.config import get_model
+from local_mlx.practical import (
+    DIFFICULTIES,
+    HALLUCINATION_EVIDENCE_POLICY,
+    HALLUCINATION_PROMPT_VERSION,
+    repository_tier_cases,
+    run_practical,
+)
 from local_mlx.schemas import ChangeDecision, RepositoryAnswer
 
 
@@ -16,6 +23,12 @@ def test_required_categories_cover_every_difficulty() -> None:
         assert {DIFFICULTIES[test] for test in tests} == {"easy", "medium", "hard", "adversarial"}
 
 
+def test_hallucination_prompt_has_versioned_evidence_contract() -> None:
+    assert HALLUCINATION_PROMPT_VERSION == "hallucination-v2"
+    assert "Missing fields are unknown" in HALLUCINATION_EVIDENCE_POLICY
+    assert "INSUFFICIENT_EVIDENCE" in HALLUCINATION_EVIDENCE_POLICY
+
+
 def test_text_only_camera_profile_is_capability_skipped(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr("local_mlx.practical.RESULT_DIR", tmp_path)
     jsonl, _ = run_practical("gptoss", "camera")
@@ -23,6 +36,20 @@ def test_text_only_camera_profile_is_capability_skipped(tmp_path, monkeypatch) -
     assert result["supported"] is False
     assert result["quality_score"] is None
     assert "text-only" in result["skip_reason"]
+
+
+def test_gptoss_capabilities_do_not_treat_api_or_images_as_intelligence_failures(
+    tmp_path, monkeypatch
+) -> None:
+    config = get_model("gptoss")
+    assert not config.multimodal
+    assert not config.responses_api
+    monkeypatch.setattr("local_mlx.practical.RESULT_DIR", tmp_path)
+    jsonl, _ = run_practical("gptoss", "vision")
+    result = json.loads(jsonl.read_text())
+    assert result["supported"] is False
+    assert result["model_success"] is None
+    assert result["quality_score"] is None
 
 
 def test_repository_adversarial_case_rewards_no_change() -> None:
