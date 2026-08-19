@@ -1,0 +1,4 @@
+runner: practical
+tests:
+  - name: retrieve_parse_reason
+    prompt: Retrieve typed REST data, validate it, and reason only after successful parsing.

@@ -1,0 +1,37 @@
+tests:
+  - name: cloud_threat_model
+    difficulty: hard
+    max_tokens: 320
+    prompt: |
+      Defensively threat-model a public API behind a CDN that writes to a queue; private
+      workers consume jobs and write to object storage and PostgreSQL. Use trust boundaries,
+      likely abuse cases, mitigations, and useful detection signals. Do not provide exploitation steps.
+  - name: sanitized_auth_logs
+    difficulty: adversarial
+    max_tokens: 280
+    prompt: |
+      Analyze these sanitized events and state hypotheses, evidence, uncertainty, and next checks:
+      10:01 user=A result=fail ip=203.0.113.8; 10:02 A fail same IP; 10:03 A success same IP;
+      10:04 A token_refresh ip=198.51.100.9; 10:05 admin=B fail ip=203.0.113.8.
+  - name: control_gaps
+    difficulty: easy
+    max_tokens: 280
+    prompt: |
+      A SaaS has SSO for employees, shared production admin credentials, weekly backups never
+      restore-tested, centralized logs retained 24 hours, and no egress filtering. Identify and
+      prioritize likely control gaps with pragmatic remediations.
+  - name: azure_architecture
+    difficulty: medium
+    max_tokens: 320
+    prompt: |
+      Review this Azure-style design defensively: Internet -> App Gateway -> App Service;
+      App Service uses a storage account key and SQL password in app settings; public SQL endpoint;
+      broad Contributor role for CI; diagnostic logs disabled. Prioritize weaknesses and fixes.
+  - name: structured_remediation
+    difficulty: medium
+    max_tokens: 300
+    schema: SecurityReview
+    prompt: |
+      Return JSON only with this exact shape: {"summary": string, "remediations":
+      [{"severity":"low|medium|high|critical","finding":string,"recommendation":string}]}.
+      Review: an internal admin portal has no MFA, is publicly reachable, and logs no admin actions.

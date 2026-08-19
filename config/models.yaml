@@ -1,0 +1,46 @@
+models:
+  qwen:
+    name: Qwen 3.5 9B 4-bit
+    model_id: mlx-community/Qwen3.5-9B-4bit
+    runtime: mlx-vlm
+    port: 8080
+    model_type: image-text-to-text
+    multimodal: true
+    reasoning: true
+    context_limit: 16384
+    temperature: 0.1
+    estimated_download_gb: 5.98
+    startup_command: mlx_vlm.server
+    startup_args: [--max-kv-size, "16384", --max-num-seqs, "1", --vision-cache-size, "1"]
+    responses_api: true
+    notes: Best first candidate for general, coding, multimodal, and Codex compatibility tests.
+  gptoss:
+    name: GPT-OSS 20B MXFP4-Q8
+    model_id: mlx-community/gpt-oss-20b-MXFP4-Q8
+    runtime: mlx-lm
+    port: 8080
+    model_type: text-generation
+    multimodal: false
+    reasoning: true
+    context_limit: 16384
+    temperature: 0.1
+    estimated_download_gb: 12.1
+    startup_command: mlx_lm.server
+    startup_args: [--prompt-cache-size, "1", --prefill-step-size, "2048"]
+    responses_api: false
+    notes: Text-only MoE; largest memory footprint here. mlx-lm lacks /v1/responses.
+  gemma:
+    name: Gemma 4 12B IT 4-bit
+    model_id: mlx-community/gemma-4-12B-it-4bit
+    runtime: mlx-vlm
+    port: 8080
+    model_type: image-text-to-text
+    multimodal: true
+    reasoning: false
+    context_limit: 16384
+    temperature: 0.1
+    estimated_download_gb: 6.77
+    startup_command: mlx_vlm.server
+    startup_args: [--max-kv-size, "16384", --max-num-seqs, "1", --vision-cache-size, "1"]
+    responses_api: true
+    notes: Multimodal instruction model; evaluate structured output and RAG carefully.

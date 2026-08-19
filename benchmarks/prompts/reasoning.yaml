@@ -1,0 +1,28 @@
+tests:
+  - name: technical_multistep
+    difficulty: medium
+    max_tokens: 280
+    prompt: |
+      A service receives 600 requests/s. Each request performs two independent 40 ms network calls
+      and 10 ms CPU work. With perfect async overlap between the calls, estimate minimum concurrency,
+      identify the bottleneck assumptions, and show the reasoning compactly.
+  - name: architecture_tradeoffs
+    difficulty: hard
+    max_tokens: 320
+    prompt: |
+      Compare SQLite, PostgreSQL, and an append-only object-store log for an offline-first desktop
+      app with one user, encrypted local data, occasional sync, and audit history. Recommend a design
+      while making tradeoffs and failure modes explicit.
+  - name: constraint_satisfaction
+    difficulty: hard
+    max_tokens: 280
+    prompt: |
+      Schedule A, B, C, D into slots 1-4, one each. A before C; B not adjacent to D; D after A;
+      C is not slot 4. Find every valid schedule and show a concise completeness argument.
+  - name: incomplete_debugging
+    difficulty: adversarial
+    max_tokens: 300
+    prompt: |
+      A Python API's p95 latency doubled after deployment, CPU is unchanged, DB query time is
+      unchanged, outbound connection count rose 8x, and rollback fixes it. Give ranked hypotheses,
+      discriminating tests, and what evidence is still missing. Do not pretend the cause is certain.

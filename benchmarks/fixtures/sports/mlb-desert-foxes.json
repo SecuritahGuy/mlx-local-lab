@@ -1,0 +1,52 @@
+{
+  "team": "Desert Foxes",
+  "sport": "mlb",
+  "season": 2025,
+  "as_of": "regular-season-pre-matchup",
+  "games_played": 10,
+  "wins": 6,
+  "losses": 4,
+  "points_for": 44,
+  "points_against": 42,
+  "home_record": "4-2",
+  "away_record": "2-2",
+  "recent_games": [
+    {
+      "for": 3,
+      "against": 2
+    },
+    {
+      "for": 1,
+      "against": 5
+    },
+    {
+      "for": 6,
+      "against": 4
+    },
+    {
+      "for": 4,
+      "against": 3
+    },
+    {
+      "for": 2,
+      "against": 6
+    }
+  ],
+  "offensive_stats": {
+    "ops": 0.724,
+    "home_runs": 11
+  },
+  "defensive_stats": {
+    "era": 4.02,
+    "whip": 1.31
+  },
+  "injuries": [
+    {
+      "position": "starting pitcher",
+      "status": "day-to-day"
+    }
+  ],
+  "opponent_strength": {
+    "index": 0.99
+  }
+}

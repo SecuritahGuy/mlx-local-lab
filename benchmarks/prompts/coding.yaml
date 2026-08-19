@@ -1,0 +1,46 @@
+tests:
+  - name: implement_function
+    difficulty: medium
+    max_tokens: 400
+    prompt: |
+      Write a Python 3.12 function `merge_intervals(items)` that accepts an iterable of
+      `(start, end)` integer pairs, rejects start > end with ValueError, merges touching
+      intervals, does not mutate its input, and returns a sorted list. Include type hints,
+      a docstring, complexity, and five focused pytest tests.
+  - name: fix_broken_function
+    difficulty: easy
+    max_tokens: 300
+    prompt: |
+      Fix this function and explain each defect. Return corrected code first.
+      def chunks(xs, n):
+          return [xs[i:i+n] for i in range(0, len(xs)+1, n)]
+      Requirements: n must be positive, accept any iterable, yield lists lazily, no empty chunk.
+  - name: code_review
+    difficulty: hard
+    max_tokens: 300
+    prompt: |
+      Review for correctness, security, concurrency, and resource defects:
+      async def cached_get(url, cache={}):
+          if url not in cache:
+              r = await client.get(url)
+              cache[url] = r.json()
+          return cache[url]
+      Give prioritized findings and a minimal corrected implementation.
+  - name: refactor
+    difficulty: medium
+    max_tokens: 260
+    prompt: |
+      Refactor this without changing observable behavior and explain the design:
+      def f(x):
+          if x and isinstance(x, list):
+              r=[]
+              for i in x:
+                  if i is not None and i not in r: r.append(i)
+              return r
+          return []
+  - name: explain_unfamiliar
+    difficulty: easy
+    max_tokens: 220
+    prompt: |
+      Explain what this Python expression does, its edge cases, and a clearer equivalent:
+      next((v for k, v in reversed(d.items()) if predicate(k)), default)

@@ -1,0 +1,121 @@
+# macOS and filesystem metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Desktop.ini
+
+# Editors, IDEs, and personal AI-tool state
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+.cursor/
+.claude/
+.codex/
+
+# Python bytecode, packaging, and test/tool caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+build/
+dist/
+wheels/
+site/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments and local interpreter state
+.venv/
+venv/
+env/
+ENV/
+.python-version.local
+
+# Secrets and machine-specific environment files
+.env
+.env.*
+!.env.example
+.envrc
+.direnv/
+*.local
+*.secret
+*.secrets
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+credentials.json
+secrets.json
+secrets.yaml
+secrets.yml
+.netrc
+.pypirc
+.npmrc
+
+# Local configuration overrides (commit documented examples instead)
+/config/*.local.yaml
+/config/*.local.yml
+/config/*.local.json
+/config/local-*
+
+# Local MLX state, logs, caches, and downloaded model artifacts
+/.local-mlx/
+/.cache/
+/cache/
+*.log
+*.pid
+*.sock
+*.safetensors
+*.gguf
+*.ggml
+*.ckpt
+*.pt
+*.pth
+/models/
+/checkpoints/
+/adapters/
+
+# Explicit local-only inputs for personal documents, photos, and datasets
+/private/
+/inputs/
+/data/private/
+/benchmarks/private/
+
+# Generated benchmark data may contain prompts, model output, local paths, or
+# retrieved private data. Publish reviewed summaries under docs/results/.
+/benchmarks/cache/
+/benchmarks/results/*
+!/benchmarks/results/.gitkeep
+!/benchmarks/results/README.md
+
+# Profilers, notebooks, and local analysis artifacts
+*.prof
+*.trace
+*.memray
+.ipynb_checkpoints/
+
+# Scratch and temporary files
+/tmp/
+/temp/
+/scratch/
+*.tmp
+*.bak

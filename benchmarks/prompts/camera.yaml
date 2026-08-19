@@ -1,0 +1,6 @@
+runner: practical
+tests:
+  - name: scene_analysis
+    prompt: Describe visible scene state without identity, sensitive-trait, intent, or threat inference.
+  - name: temporal_change
+    prompt: Compare chronological images and report only visible changes.

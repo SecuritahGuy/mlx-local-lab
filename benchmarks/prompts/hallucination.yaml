@@ -1,0 +1,4 @@
+runner: practical
+tests:
+  - name: absent_facts
+    prompt: Abstain explicitly when camera, sports, or API inputs do not contain the requested fact.

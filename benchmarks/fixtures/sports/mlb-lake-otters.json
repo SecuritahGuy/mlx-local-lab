@@ -1,0 +1,47 @@
+{
+  "team": "Lake Otters",
+  "sport": "mlb",
+  "season": 2025,
+  "as_of": "regular-season-pre-matchup",
+  "games_played": 10,
+  "wins": 8,
+  "losses": 2,
+  "points_for": 51,
+  "points_against": 34,
+  "home_record": "5-1",
+  "away_record": "3-1",
+  "recent_games": [
+    {
+      "for": 6,
+      "against": 2
+    },
+    {
+      "for": 5,
+      "against": 4
+    },
+    {
+      "for": 2,
+      "against": 3
+    },
+    {
+      "for": 7,
+      "against": 1
+    },
+    {
+      "for": 4,
+      "against": 2
+    }
+  ],
+  "offensive_stats": {
+    "ops": 0.781,
+    "home_runs": 14
+  },
+  "defensive_stats": {
+    "era": 3.18,
+    "whip": 1.12
+  },
+  "injuries": [],
+  "opponent_strength": {
+    "index": 1.02
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "sport": "nfl",
+  "cutoff": "before-matchup",
+  "team_a": {
+    "team": "Summit Pilots",
+    "sport": "nfl",
+    "season": 2025,
+    "as_of": "regular-season-pre-matchup",
+    "games_played": 4,
+    "wins": 3,
+    "losses": 1,
+    "points_for": 118,
+    "points_against": 92,
+    "home_record": "3-0",
+    "away_record": "0-1",
+    "recent_games": [
+      {
+        "for": 42,
+        "against": 10
+      },
+      {
+        "for": 20,
+        "against": 19
+      },
+      {
+        "for": 17,
+        "against": 24
+      },
+      {
+        "for": 39,
+        "against": 38
+      }
+    ],
+    "offensive_stats": {
+      "yards_per_play": 5.3,
+      "coin_toss_wins": 4,
+      "jersey_sales_rank": 1
+    },
+    "defensive_stats": {
+      "sacks": 8
+    },
+    "injuries": [],
+    "opponent_strength": {
+      "index": 0.78
+    }
+  },
+  "team_b": {
+    "team": "Valley Owls",
+    "sport": "nfl",
+    "season": 2025,
+    "as_of": "regular-season-pre-matchup",
+    "games_played": 4,
+    "wins": 2,
+    "losses": 2,
+    "points_for": 96,
+    "points_against": 90,
+    "home_record": "1-1",
+    "away_record": "1-1",
+    "recent_games": [
+      {
+        "for": 21,
+        "against": 20
+      },
+      {
+        "for": 17,
+        "against": 24
+      },
+      {
+        "for": 31,
+        "against": 10
+      },
+      {
+        "for": 27,
+        "against": 36
+      }
+    ],
+    "offensive_stats": {
+      "yards_per_play": 5.8,
+      "coin_toss_wins": 0,
+      "jersey_sales_rank": 18
+    },
+    "defensive_stats": {
+      "sacks": 14
+    },
+    "injuries": [],
+    "opponent_strength": {
+      "index": 1.16
+    }
+  },
+  "data_quality": {
+    "injury_report": "not supplied",
+    "warning": "four-game sample; coin tosses and jersey sales are not performance indicators"
+  },
+  "actual_winner": "Valley Owls",
+  "actual_score": {
+    "Summit Pilots": 20,
+    "Valley Owls": 23
+  },
+  "sample_size_warning": true
+}

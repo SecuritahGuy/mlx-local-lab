@@ -1,0 +1,51 @@
+{
+  "team": "Coastal Tides",
+  "sport": "nba",
+  "season": 2025,
+  "as_of": "regular-season-pre-matchup",
+  "games_played": 10,
+  "wins": 6,
+  "losses": 4,
+  "points_for": 1122,
+  "points_against": 1114,
+  "home_record": "4-1",
+  "away_record": "2-3",
+  "recent_games": [
+    {
+      "for": 110,
+      "against": 108
+    },
+    {
+      "for": 118,
+      "against": 121
+    },
+    {
+      "for": 107,
+      "against": 99
+    },
+    {
+      "for": 112,
+      "against": 116
+    },
+    {
+      "for": 120,
+      "against": 114
+    }
+  ],
+  "offensive_stats": {
+    "true_shooting_pct": 0.574,
+    "turnover_pct": 14.1
+  },
+  "defensive_stats": {
+    "defensive_rating": 111.4
+  },
+  "injuries": [
+    {
+      "position": "center",
+      "status": "out"
+    }
+  ],
+  "opponent_strength": {
+    "index": 1.01
+  }
+}

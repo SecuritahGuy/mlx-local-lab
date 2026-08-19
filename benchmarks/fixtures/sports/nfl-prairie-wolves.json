@@ -1,0 +1,52 @@
+{
+  "team": "Prairie Wolves",
+  "sport": "nfl",
+  "season": 2025,
+  "as_of": "regular-season-pre-matchup",
+  "games_played": 8,
+  "wins": 5,
+  "losses": 3,
+  "points_for": 190,
+  "points_against": 181,
+  "home_record": "3-1",
+  "away_record": "2-2",
+  "recent_games": [
+    {
+      "for": 17,
+      "against": 14
+    },
+    {
+      "for": 20,
+      "against": 27
+    },
+    {
+      "for": 23,
+      "against": 20
+    },
+    {
+      "for": 16,
+      "against": 13
+    },
+    {
+      "for": 21,
+      "against": 24
+    }
+  ],
+  "offensive_stats": {
+    "yards_per_play": 5.2,
+    "turnovers": 12
+  },
+  "defensive_stats": {
+    "sacks": 18,
+    "takeaways": 10
+  },
+  "injuries": [
+    {
+      "position": "left tackle",
+      "status": "questionable"
+    }
+  ],
+  "opponent_strength": {
+    "index": 0.97
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "team": "Harbor Hawks",
+  "sport": "nfl",
+  "season": 2025,
+  "as_of": "regular-season-pre-matchup",
+  "games_played": 8,
+  "wins": 6,
+  "losses": 2,
+  "points_for": 226,
+  "points_against": 168,
+  "home_record": "4-0",
+  "away_record": "2-2",
+  "recent_games": [
+    {
+      "for": 31,
+      "against": 17
+    },
+    {
+      "for": 24,
+      "against": 20
+    },
+    {
+      "for": 35,
+      "against": 21
+    },
+    {
+      "for": 20,
+      "against": 23
+    },
+    {
+      "for": 28,
+      "against": 17
+    }
+  ],
+  "offensive_stats": {
+    "yards_per_play": 6.1,
+    "turnovers": 7
+  },
+  "defensive_stats": {
+    "sacks": 24,
+    "takeaways": 15
+  },
+  "injuries": [],
+  "opponent_strength": {
+    "index": 1.08
+  }
+}

@@ -1,0 +1,9 @@
+runner: practical
+tests:
+  - name: sports_multi_step
+    prompt: Select required endpoints, retrieve both profiles, compare them, and answer.
+  - name: repository_navigation
+    prompt: Inspect the fixture repository and locate authentication responsibilities.
+  - name: repository_change
+    mode: code-changing
+    prompt: Correct the refresh-token functional bug in an isolated fixture copy and run its focused test.

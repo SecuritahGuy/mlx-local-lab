@@ -1,0 +1,7 @@
+[P1] Project Cedar deploys every Tuesday at 15:00 UTC. A release needs one peer approval.
+
+[P2] Rollback is automatic if the five-minute error rate exceeds 2 percent. Priya owns the rollback policy.
+
+[P3] Changes to automatic rollback thresholds require approval from both the service owner and SRE.
+
+[P4] Release records are retained for 90 days. The document does not specify a hosting provider or cloud region.

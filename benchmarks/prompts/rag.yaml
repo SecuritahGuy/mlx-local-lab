@@ -1,0 +1,25 @@
+tests:
+  - name: direct_answer
+    difficulty: easy
+    max_tokens: 128
+    document: cedar.txt
+    prompt: |
+      Use only the document below. Cite paragraph IDs. If absent, say NOT IN DOCUMENT.
+      {document}
+      Question: When are deployments scheduled?
+  - name: combine_passages
+    difficulty: medium
+    max_tokens: 160
+    document: cedar.txt
+    prompt: |
+      Use only the document below. Cite paragraph IDs. If absent, say NOT IN DOCUMENT.
+      {document}
+      Question: Who is responsible for rollback policy, and which approvals change its threshold?
+  - name: unanswerable
+    difficulty: adversarial
+    max_tokens: 64
+    document: cedar.txt
+    prompt: |
+      Use only the document below. Cite paragraph IDs. If absent, say NOT IN DOCUMENT.
+      {document}
+      Question: What cloud region hosts Project Cedar?

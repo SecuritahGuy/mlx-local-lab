@@ -1,0 +1,6 @@
+{
+  "service": "inventory-api",
+  "observed_at": "2026-08-19T13:00:00Z",
+  "screenshot_endpoint": "/api/vision/application-error",
+  "notes": "Customers report intermittent checkout failures. Firmware data is not collected."
+}

@@ -1,0 +1,4 @@
+runner: practical
+tests:
+  - name: application_error_via_rest
+    prompt: Retrieve the screenshot, identify the visible error, and suggest evidence-grounded debugging steps.

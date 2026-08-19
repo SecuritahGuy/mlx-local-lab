@@ -1,0 +1,1 @@
+For HTTP 503 with an upstream timeout, verify dependency health, request latency, connection-pool saturation, and retry amplification. Correlate by request ID.

@@ -1,0 +1,10 @@
+tests:
+  - name: schema_compliance
+    difficulty: medium
+    max_tokens: 300
+    schema: SecurityReview
+    prompt: |
+      Output JSON only, no fence or commentary. Schema:
+      {"summary": string <=300 chars, "remediations": array of 1-5 objects with exactly
+      {"severity":"low|medium|high|critical", "finding":string <=200 chars,
+      "recommendation":string <=300 chars}}. Scenario: public backup bucket and no alerting.
