@@ -1,0 +1,19 @@
+{
+  "currency": "units",
+  "bets": [
+    {"id": "bet-1", "status": "win", "stake": 1.0, "profit": 1.1},
+    {"id": "bet-2", "status": "loss", "stake": 2.0, "profit": -2.0},
+    {"id": "bet-3", "status": "push", "stake": 1.5, "profit": 0.0},
+    {"id": "bet-4", "status": "win", "stake": 0.5, "profit": 0.8},
+    {"id": "bet-5", "status": "pending", "stake": 3.0, "profit": null}
+  ],
+  "expected": {
+    "wins": 2,
+    "losses": 1,
+    "pushes": 1,
+    "pending": 1,
+    "graded_bets": 4,
+    "net_units": -0.1,
+    "roi": -0.02
+  }
+}

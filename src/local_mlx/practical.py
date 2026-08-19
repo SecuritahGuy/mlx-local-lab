@@ -28,9 +28,11 @@ from local_mlx.schemas import (
     CodeChange,
     ExecutableChange,
     GroundedAnswer,
+    LedgerSummary,
     RepositoryAnswer,
     RetrievalPlan,
     SportsPrediction,
+    SportsSlateAssessment,
     TemporalAnalysis,
     VisualAnswer,
 )
@@ -38,6 +40,7 @@ from local_mlx.scoring import (
     camera_score,
     category_scores,
     hallucination_score,
+    ledger_audit_score,
     recommendations,
     sports_score,
 )
@@ -49,9 +52,11 @@ SCHEMAS = {
     "CodeChange": CodeChange,
     "ExecutableChange": ExecutableChange,
     "GroundedAnswer": GroundedAnswer,
+    "LedgerSummary": LedgerSummary,
     "VisualAnswer": VisualAnswer,
     "TemporalAnalysis": TemporalAnalysis,
     "SportsPrediction": SportsPrediction,
+    "SportsSlateAssessment": SportsSlateAssessment,
     "RetrievalPlan": RetrievalPlan,
     "RepositoryAnswer": RepositoryAnswer,
 }
@@ -70,6 +75,7 @@ DIFFICULTIES = {
     "nfl-direct-data": "easy", "nfl-model-arithmetic": "easy",
     "nba-historical-matchup": "medium", "mlb-historical-matchup": "hard",
     "nfl-adversarial-noisy-upset": "adversarial", "camera-absent-person": "easy",
+    "statspace-slate-gating": "hard", "statspace-ledger-accounting": "medium",
     "sports-absent-quarterback": "medium", "api-absent-firmware": "hard",
     "false-premise-conflicting-data": "adversarial", "retrieve-two-teams": "medium",
     "architecture-navigation": "easy", "isolated-refresh-token-change": "easy",
@@ -79,6 +85,9 @@ DIFFICULTIES = {
 
 HALLUCINATION_NATURAL_PROMPT_VERSION = "hallucination-natural-v1"
 HALLUCINATION_GUARDRAILED_PROMPT_VERSION = "hallucination-guardrailed-v1"
+STATSPACE_SLATE_PROMPT_VERSION = "statspace-slate-v2"
+STATSPACE_LEDGER_PROMPT_VERSION = "statspace-ledger-v2"
+STATSPACE_LEDGER_SCORER_VERSION = "statspace-ledger-partial-v2"
 HALLUCINATION_NATURAL_POLICY = (
     "Answer only from the supplied source. Do not use outside knowledge or invent missing facts. "
     "If the requested fact is unsupported, say that the source is insufficient and identify what "
@@ -473,6 +482,73 @@ def sports_cases(alias: str, source: RestDataSource) -> list[dict]:
     else:
         row["quality_score"] = 0.0
     row["sample_size_warning"] = "Adversarial fictional upset; reasoning is scored separately from winner accuracy."
+    rows.append(row)
+    rows.extend(statspace_cases(alias, source))
+    return rows
+
+
+def statspace_cases(alias: str, source: RestDataSource) -> list[dict]:
+    rows: list[dict] = []
+
+    slate, retrieval = source.get_json("/api/sports/statspace/slate")
+    public_slate = {key: value for key, value in slate.items() if key != "expected"}
+    slate_prompt = (
+        "Apply the supplied production policy and its ordered_precedence exactly to this "
+        "StatSpace-style candidate slate. Classify every candidate. Candidate eligibility uses "
+        "candidate_sources; top-level source_health is only an overall condition to report as a "
+        "data-quality issue. Put only older snapshots rejected in favor of a newer snapshot in "
+        "superseded_market_ids. Do not use team reputation or outside knowledge.\n"
+        + json.dumps(public_slate, sort_keys=True)
+    )
+    call = model_call(alias, slate_prompt, schema="SportsSlateAssessment", max_tokens=700)
+    row = _base_row(alias, "sports", "statspace-slate-gating", [retrieval])
+    row["prompt_version"] = STATSPACE_SLATE_PROMPT_VERSION
+    row.update({key: value for key, value in call.items() if key != "parsed"})
+    parsed = call["parsed"]
+    expected = slate["expected"]
+    if isinstance(parsed, SportsSlateAssessment):
+        decisions = {item.market_id: item.status for item in parsed.decisions}
+        expected_decisions = expected["decisions"]
+        classification = sum(
+            decisions.get(market_id) == status
+            for market_id, status in expected_decisions.items()
+        ) / len(expected_decisions)
+        duplicates = set(parsed.superseded_market_ids) == set(expected["superseded_market_ids"])
+        mentions_degraded = any("degrad" in issue.lower() for issue in parsed.data_quality_issues)
+        row["metrics"] = {
+            "classification_accuracy": classification,
+            "duplicate_detection": float(duplicates),
+            "source_health_awareness": float(mentions_degraded),
+        }
+        row["quality_score"] = (classification + float(duplicates) + float(mentions_degraded)) / 3
+    else:
+        row["quality_score"] = 0.0
+    rows.append(row)
+
+    ledger, retrieval = source.get_json("/api/sports/statspace/ledger")
+    public_ledger = {key: value for key, value in ledger.items() if key != "expected"}
+    ledger_prompt = (
+        "Audit this StatSpace-style betting ledger using these exact definitions: pending is the "
+        "count of pending rows; graded_bets is the count of every non-pending row, including pushes; "
+        "net_units is the sum of profit for every non-pending row; settled stake is the sum of stake "
+        "for every non-pending row, including pushes; ROI is net_units divided by settled stake. "
+        "Pending stakes never enter net_units or settled stake. Return ROI as a decimal, not a "
+        "percentage.\n"
+        + json.dumps(public_ledger, sort_keys=True)
+    )
+    call = model_call(alias, ledger_prompt, schema="LedgerSummary", max_tokens=320)
+    row = _base_row(alias, "sports", "statspace-ledger-accounting", [retrieval])
+    row["prompt_version"] = STATSPACE_LEDGER_PROMPT_VERSION
+    row["scorer_version"] = STATSPACE_LEDGER_SCORER_VERSION
+    row.update({key: value for key, value in call.items() if key != "parsed"})
+    parsed = call["parsed"]
+    expected = ledger["expected"]
+    if isinstance(parsed, LedgerSummary):
+        metrics = ledger_audit_score(parsed, expected)
+        row["metrics"] = metrics
+        row["quality_score"] = sum(metrics.values()) / len(metrics)
+    else:
+        row["quality_score"] = 0.0
     rows.append(row)
     return rows
 
