@@ -8,3 +8,8 @@ content, personal filenames, absolute home-directory paths, and unnecessary
 host identifiers. Retain the model ID, benchmark revision, hardware class,
 runtime versions, methodology, aggregate metrics, and known limitations needed
 to interpret or reproduce the experiment.
+
+Reviewed summaries:
+
+- [`statspace-validation-2026-08-21.md`](statspace-validation-2026-08-21.md) — StatSpace v3/v4
+  sports benchmark validation across Qwen, Gemma, and GPT-OSS.

@@ -90,6 +90,9 @@ def ledger_audit_score(summary: LedgerSummary, expected: dict) -> dict[str, floa
     return {
         "settlement_count_accuracy": count_accuracy,
         "net_units_accuracy": float(abs(summary.net_units - expected["net_units"]) <= 0.005),
+        "settled_stake_accuracy": float(
+            abs(summary.settled_stake - expected["settled_stake"]) <= 0.005
+        ),
         "roi_accuracy": float(abs(summary.roi - expected["roi"]) <= 0.005),
     }
 

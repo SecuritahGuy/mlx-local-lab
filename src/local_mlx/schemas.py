@@ -86,6 +86,27 @@ class SportsSlateAssessment(BaseModel):
     data_quality_issues: list[str]
 
 
+class RecommendationExplanation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    market_id: str
+    status: Literal["recommended", "watchlist", "paper_only", "excluded"]
+    primary_gate: Literal[
+        "superseded_snapshot",
+        "event_not_scheduled",
+        "missing_price",
+        "required_source_unhealthy",
+        "thresholds_passed",
+        "below_threshold",
+    ]
+    explanation: str = Field(max_length=300)
+    missing_information: list[str]
+
+
+class StatSpaceExplanationSet(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    explanations: list[RecommendationExplanation] = Field(min_length=1)
+
+
 class LedgerSummary(BaseModel):
     model_config = ConfigDict(extra="forbid")
     wins: int = Field(ge=0)
@@ -94,6 +115,7 @@ class LedgerSummary(BaseModel):
     pending: int = Field(ge=0)
     graded_bets: int = Field(ge=0)
     net_units: float
+    settled_stake: float = Field(ge=0)
     roi: float
 
 

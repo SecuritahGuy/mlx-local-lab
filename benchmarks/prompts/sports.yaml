@@ -4,5 +4,7 @@ tests:
     prompt: Interpret pre-matchup statistics and Python-derived features without temporal leakage.
   - name: statspace_slate_gating
     prompt: Apply production gates to priced, unpriced, duplicated, degraded, and started markets.
+  - name: statspace_grounded_explanations
+    prompt: Explain deterministic recommendations without changing gates or inventing missing facts.
   - name: statspace_ledger_accounting
     prompt: Audit settled and pending bets without contaminating record, net-units, or ROI totals.

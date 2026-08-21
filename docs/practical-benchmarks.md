@@ -62,10 +62,14 @@ and newly added comment lines as separate edit-quality signals.
 begin with `INSUFFICIENT_EVIDENCE`. Historical `hallucination-v2` results used the strict contract and
 remain labeled as legacy rows in the consolidated report. Results without prompt-version fields
 predate prompt versioning and should not be used as like-for-like evidence of a prompt improvement.
-`statspace-slate-v2` gives an ordered gate precedence and defines superseded IDs as older snapshots
-only. `statspace-ledger-v2` explicitly counts pushes as graded and includes their stake in the ROI
-denominator. Its `statspace-ledger-partial-v2` scorer awards count accuracy per field while retaining
-exact net-unit and ROI checks. Earlier StatSpace-style rows should not be compared as like-for-like.
+`statspace-slate-v4` applies an explicit first-match procedure across duplicate snapshots, event
+state, price availability, required-source health, and inclusive edge/expected-value thresholds.
+It also scores complete decision coverage and awareness of degraded or missing optional data.
+`statspace-explanations-v2` keeps deterministic statuses and primary gates authoritative while
+testing whether concise explanations remain grounded and preserve explicitly missing information.
+`statspace-ledger-v3` requires the supplied signed profit values and reports settled stake directly;
+its `statspace-ledger-partial-v3` scorer awards count accuracy per field and exact net-unit, settled-
+stake, and ROI checks. Earlier StatSpace-style rows should not be compared as like-for-like.
 
 Pairwise category winners require at least 0.30 points on the 10-point scale. Difficulty-tier
 winners require at least 3 percentage points. Smaller gaps are reported as `Tie / no meaningful

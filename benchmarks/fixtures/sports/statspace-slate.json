@@ -18,7 +18,8 @@
   "source_health": {
     "model": "healthy",
     "odds": "degraded",
-    "schedule": "healthy"
+    "schedule": "healthy",
+    "injuries": "degraded"
   },
   "candidates": [
     {
@@ -80,6 +81,78 @@
       "expected_value": 0.18,
       "side_price": 120,
       "candidate_sources": {"model": "healthy", "odds": "healthy", "schedule": "healthy"}
+    },
+    {
+      "market_id": "mlb-pine-bay-bad-odds",
+      "canonical_game_id": "mlb-pine-bay",
+      "snapshot_at": "2026-08-19T16:56:00Z",
+      "event_status": "scheduled",
+      "model_probability": 0.67,
+      "implied_probability": 0.54,
+      "edge": 0.13,
+      "expected_value": 0.17,
+      "side_price": 118,
+      "candidate_sources": {"model": "healthy", "odds": "unhealthy", "schedule": "healthy"}
+    },
+    {
+      "market_id": "mlb-capital-valley-model-down",
+      "canonical_game_id": "mlb-capital-valley",
+      "snapshot_at": "2026-08-19T16:54:00Z",
+      "event_status": "scheduled",
+      "model_probability": 0.65,
+      "implied_probability": 0.52,
+      "edge": 0.13,
+      "expected_value": 0.16,
+      "side_price": 115,
+      "candidate_sources": {"model": "unhealthy", "odds": "healthy", "schedule": "healthy"}
+    },
+    {
+      "market_id": "mlb-border-plains-threshold",
+      "canonical_game_id": "mlb-border-plains",
+      "snapshot_at": "2026-08-19T16:53:00Z",
+      "event_status": "scheduled",
+      "model_probability": 0.57,
+      "implied_probability": 0.52,
+      "edge": 0.05,
+      "expected_value": 0.04,
+      "side_price": 108,
+      "candidate_sources": {"model": "healthy", "odds": "healthy", "schedule": "healthy", "injuries": "missing"}
+    },
+    {
+      "market_id": "mlb-forest-desert-low-ev",
+      "canonical_game_id": "mlb-forest-desert",
+      "snapshot_at": "2026-08-19T16:51:00Z",
+      "event_status": "scheduled",
+      "model_probability": 0.63,
+      "implied_probability": 0.53,
+      "edge": 0.10,
+      "expected_value": 0.03,
+      "side_price": 102,
+      "candidate_sources": {"model": "healthy", "odds": "healthy", "schedule": "healthy"}
+    },
+    {
+      "market_id": "mlb-island-harbor-new",
+      "canonical_game_id": "mlb-island-harbor",
+      "snapshot_at": "2026-08-19T16:59:00Z",
+      "event_status": "scheduled",
+      "model_probability": 0.66,
+      "implied_probability": null,
+      "edge": 0.12,
+      "expected_value": null,
+      "side_price": null,
+      "candidate_sources": {"model": "healthy", "odds": "healthy", "schedule": "healthy"}
+    },
+    {
+      "market_id": "mlb-island-harbor-old",
+      "canonical_game_id": "mlb-island-harbor",
+      "snapshot_at": "2026-08-19T16:30:00Z",
+      "event_status": "live",
+      "model_probability": 0.62,
+      "implied_probability": 0.53,
+      "edge": 0.09,
+      "expected_value": 0.12,
+      "side_price": 114,
+      "candidate_sources": {"model": "healthy", "odds": "healthy", "schedule": "healthy"}
     }
   ],
   "expected": {
@@ -88,8 +161,14 @@
       "mlb-north-south-old": "excluded",
       "mlb-east-west-unpriced": "paper_only",
       "mlb-river-lake-thin": "watchlist",
-      "mlb-hill-coast-started": "excluded"
+      "mlb-hill-coast-started": "excluded",
+      "mlb-pine-bay-bad-odds": "excluded",
+      "mlb-capital-valley-model-down": "excluded",
+      "mlb-border-plains-threshold": "recommended",
+      "mlb-forest-desert-low-ev": "watchlist",
+      "mlb-island-harbor-new": "paper_only",
+      "mlb-island-harbor-old": "excluded"
     },
-    "superseded_market_ids": ["mlb-north-south-old"]
+    "superseded_market_ids": ["mlb-north-south-old", "mlb-island-harbor-old"]
   }
 }

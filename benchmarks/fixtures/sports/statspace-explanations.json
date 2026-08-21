@@ -1,0 +1,74 @@
+{
+  "as_of": "2026-08-19T17:00:00Z",
+  "packets": [
+    {
+      "market_id": "mlb-border-plains-threshold",
+      "deterministic_status": "recommended",
+      "primary_gate": "thresholds_passed",
+      "gate_facts": {
+        "event_is_scheduled": true,
+        "has_usable_side_price": true,
+        "required_sources_healthy": true,
+        "edge": 0.05,
+        "minimum_edge": 0.05,
+        "edge_passed": true,
+        "expected_value": 0.04,
+        "minimum_expected_value": 0.04,
+        "expected_value_passed": true
+      },
+      "missing_fields": ["injuries.starting_pitcher_status"]
+    },
+    {
+      "market_id": "mlb-hill-coast-started",
+      "deterministic_status": "excluded",
+      "primary_gate": "event_not_scheduled",
+      "gate_facts": {"event_status": "live", "event_is_scheduled": false},
+      "missing_fields": []
+    },
+    {
+      "market_id": "mlb-east-west-unpriced",
+      "deterministic_status": "paper_only",
+      "primary_gate": "missing_price",
+      "gate_facts": {"side_price": null, "has_usable_side_price": false},
+      "missing_fields": ["odds.side_price"]
+    },
+    {
+      "market_id": "mlb-pine-bay-bad-odds",
+      "deterministic_status": "excluded",
+      "primary_gate": "required_source_unhealthy",
+      "gate_facts": {"required_source": "odds", "source_status": "unhealthy"},
+      "missing_fields": []
+    },
+    {
+      "market_id": "mlb-forest-desert-low-ev",
+      "deterministic_status": "watchlist",
+      "primary_gate": "below_threshold",
+      "gate_facts": {
+        "edge": 0.10,
+        "minimum_edge": 0.05,
+        "edge_passed": true,
+        "expected_value": 0.03,
+        "minimum_expected_value": 0.04,
+        "expected_value_passed": false
+      },
+      "missing_fields": []
+    }
+  ],
+  "expected": {
+    "statuses": {
+      "mlb-border-plains-threshold": "recommended",
+      "mlb-hill-coast-started": "excluded",
+      "mlb-east-west-unpriced": "paper_only",
+      "mlb-pine-bay-bad-odds": "excluded",
+      "mlb-forest-desert-low-ev": "watchlist"
+    },
+    "primary_gates": {
+      "mlb-border-plains-threshold": "thresholds_passed",
+      "mlb-hill-coast-started": "event_not_scheduled",
+      "mlb-east-west-unpriced": "missing_price",
+      "mlb-pine-bay-bad-odds": "required_source_unhealthy",
+      "mlb-forest-desert-low-ev": "below_threshold"
+    },
+    "missing_information_market_id": "mlb-border-plains-threshold"
+  }
+}

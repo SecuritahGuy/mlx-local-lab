@@ -13,6 +13,7 @@ All notable changes to this project are documented here.
   summaries.
 - `gptoss-final`, `gemma-default`, and `gemma-strict` request profiles.
 - Versioned natural and guardrailed hallucination tracks.
+- Grounded StatSpace recommendation explanations with authoritative deterministic gates.
 
 ### Changed
 
@@ -31,6 +32,9 @@ All notable changes to this project are documented here.
 - Text-only capabilities are skipped rather than scored as intelligence failures.
 - Explicit model overrides now select the overridden model's runtime instead of inheriting an
   unrelated active server runtime.
+- StatSpace slate evaluation now covers inclusive thresholds, required versus optional source
+  health, duplicate precedence, and complete candidate coverage; ledger audits now score settled
+  stake explicitly.
 
 ### Fixed
 
