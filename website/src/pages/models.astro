@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { models } from '../lib/data';
+
+const primaryAliases = ['qwen', 'qwen38', 'lfm25', 'gptoss', 'gemma'];
+const primaryModels = primaryAliases.map((alias) => ({ alias, ...models[alias] }));
+---
+
+<BaseLayout title="Model registry | Local MLX Lab" description="The exact MLX checkpoints, runtimes, capabilities, and conservative limits configured in the local lab.">
+  <header class="page-hero section">
+    <p class="eyebrow">Registry-backed · no scattered model IDs</p>
+    <h1>Five checkpoints. One constrained machine.</h1>
+    <p class="hero-copy">Every model is an explicit experiment profile with an exact checkpoint, runtime, capability boundary, and conservative memory posture.</p>
+  </header>
+  <section class="section compact-section">
+    <div class="registry-list">
+      {primaryModels.map((model, index) => (
+        <article class="registry-row">
+          <div class="registry-index">{String(index + 1).padStart(2, '0')}</div>
+          <div>
+            <p class="section-label">{model.alias} · {model.runtime}</p>
+            <h2>{model.name}</h2>
+            <p>{model.notes}</p>
+            <code>{model.model_id}</code>
+          </div>
+          <dl class="registry-metrics">
+            <div><dt>Download</dt><dd>{model.estimated_download_gb} GB</dd></div>
+            <div><dt>Context cap</dt><dd>{model.context_limit.toLocaleString()}</dd></div>
+            <div><dt>Vision</dt><dd>{model.multimodal ? 'Yes' : 'No'}</dd></div>
+            <div><dt>Responses</dt><dd>{model.responses_api ? 'Yes' : 'No'}</dd></div>
+          </dl>
+        </article>
+      ))}
+    </div>
+    <div class="callout wide-callout"><strong>Profiles are not extra weights.</strong> <code>gptoss-final</code>, <code>gemma-default</code>, and <code>gemma-strict</code> are request profiles or aliases over the same cached checkpoints.</div>
+  </section>
+</BaseLayout>

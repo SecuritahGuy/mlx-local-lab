@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { modelLabels, percent, reliability } from '../../lib/data';
+import { publishedDocuments } from '../../lib/content';
+
+const base = import.meta.env.BASE_URL;
+const reports = publishedDocuments.filter((document) => document.section === 'results');
+const trialEntries = Object.entries(reliability.trials);
+const routingEntries = Object.entries(reliability.routing).filter(([name]) => name !== 'default');
+---
+
+<BaseLayout title="Measured results | Local MLX Lab" description="Coverage-aware local MLX benchmark results with latency, throughput, routing recommendations, and explicit limitations.">
+  <header class="page-hero section results-hero">
+    <div><p class="eyebrow">Reviewed evidence · reference host: 24 GiB Apple Silicon</p><h1>Results without the victory lap.</h1><p class="hero-copy">The dashboard preserves coverage, variability, and missing capabilities so a clean chart cannot outrun the evidence behind it.</p></div>
+    <div class="result-stamp"><strong>91</strong><span>observed repeated trials</span><small>Across 3 model profiles and 13 core cases</small></div>
+  </header>
+  <section class="section compact-section">
+    <div class="section-heading"><div><p class="section-label">Repeated-trial summary</p><h2>Coverage before comparison.</h2></div><p>Qwen and Gemma have complete three-run coverage. GPT-OSS remains useful but incomplete and is never silently treated as equivalent evidence.</p></div>
+    <div class="trial-grid">
+      {trialEntries.map(([alias, trial]) => {
+        const coverage = (trial.coverage.observed_trials / trial.coverage.expected_trials) * 100;
+        return <article class="trial-card">
+          <header><h3>{modelLabels[alias] ?? alias}</h3><span class:list={['coverage-state', { incomplete: coverage < 100 }]}>{coverage === 100 ? 'Complete' : 'Incomplete'}</span></header>
+          <div class="coverage-bar" role="img" aria-label={`${coverage.toFixed(0)} percent trial coverage`}><span style={`width:${coverage}%`}></span></div>
+          <strong class="coverage-number">{trial.coverage.observed_trials} / {trial.coverage.expected_trials}</strong>
+          <dl class="result-metrics"><div><dt>Median TTFT</dt><dd>{trial.ttft_seconds.median.toFixed(2)}s</dd></div><div><dt>Median speed</dt><dd>{trial.tokens_per_second.median.toFixed(1)} tok/s</dd></div><div><dt>Schema success</dt><dd>{trial.schema_success_rate === null ? 'N/A' : percent(trial.schema_success_rate)}</dd></div><div><dt>Peak memory</dt><dd>{trial.peak_system_used_gb.toFixed(1)} GB</dd></div></dl>
+        </article>;
+      })}
+    </div>
+  </section>
+  <section class="section routing-section">
+    <div class="section-heading"><div><p class="section-label">Deterministic routing</p><h2>A workload map, not a podium.</h2></div><p>A five-percentage-point margin is required. N/A means the needed evidence is unavailable, not that a model scored zero.</p></div>
+    <div class="table-wrap"><table><thead><tr><th scope="col">Workload</th><th scope="col">Qwen</th><th scope="col">Gemma</th><th scope="col">GPT-OSS</th><th scope="col">Recommendation</th></tr></thead><tbody>{routingEntries.map(([workload, row]) => <tr><th scope="row">{workload.replace('_', ' ')}</th><td>{percent(row.qwen)}</td><td>{percent(row.gemma)}</td><td>{percent(row['gptoss-final'])}</td><td><strong>{row.recommendation}</strong>{row.basis && <small>{row.basis}</small>}</td></tr>)}</tbody></table></div>
+  </section>
+  <section class="section">
+    <div class="section-heading"><div><p class="section-label">Field notes</p><h2>Read past the aggregate.</h2></div><p>Each report records host conditions, method changes, caveats, and follow-up work needed before results become recommendations.</p></div>
+    <div class="report-list">{reports.map((report) => <a href={`${base}${report.slug}/`}><span>{report.date ?? 'Living report'}</span><div><h3>{report.title}</h3><p>{report.description}</p></div><strong aria-hidden="true">↗</strong></a>)}</div>
+  </section>
+</BaseLayout>

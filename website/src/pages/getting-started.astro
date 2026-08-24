@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="Getting started | Local MLX Lab" description="Set up, download, start, query, and safely stop a local MLX model on Apple Silicon.">
+  <header class="page-hero section">
+    <p class="eyebrow">Getting started · about 10 minutes before model download</p>
+    <h1>From clean checkout to a local response.</h1>
+    <p class="hero-copy">The setup is intentionally explicit: dependencies first, model weights only when you ask, and every server bound to localhost.</p>
+  </header>
+  <div class="content-grid section compact-section">
+    <aside class="toc-card">
+      <p class="section-label">On this page</p>
+      <ol><li><a href="#requirements">Requirements</a></li><li><a href="#setup">Prepare the lab</a></li><li><a href="#run">Run a model</a></li><li><a href="#query">Query it</a></li><li><a href="#stop">Stop safely</a></li></ol>
+    </aside>
+    <article class="prose steps">
+      <section id="requirements"><p class="step-number">01</p><h2>Check the machine</h2><p>You need an Apple Silicon Mac, macOS with Xcode Command Line Tools, Python 3.12, <a href="https://docs.astral.sh/uv/">uv</a>, and enough free storage for the selected checkpoint.</p><pre><code>make info</code></pre></section>
+      <section id="setup"><p class="step-number">02</p><h2>Prepare the lab</h2><p>This creates the Python environment and runs lint and tests. It does not download model weights.</p><pre><code>git clone https://github.com/SecuritahGuy/mlx-local-lab.git
+cd mlx-local-lab
+make setup
+make check</code></pre></section>
+      <section id="run"><p class="step-number">03</p><h2>Download, then start</h2><p>Downloads are explicit so starting a server cannot unexpectedly fetch multiple gigabytes.</p><pre><code>make download MODEL=qwen
+make model MODEL=qwen
+make health</code></pre><div class="callout"><strong>Memory first.</strong> Begin with the conservative 2K benchmark configuration, close memory-heavy apps, and stop if swap rises persistently.</div></section>
+      <section id="query"><p class="step-number">04</p><h2>Query the local API</h2><pre><code>uv run local-mlx chat "Write a robust Python retry function."
+
+curl http://127.0.0.1:8080/v1/models</code></pre><p>The library also exposes a runtime-neutral <code>LocalLLM</code> abstraction. See the <a href={`${base}guides/codex/`}>Codex provider guide</a> for Responses API compatibility.</p></section>
+      <section id="stop"><p class="step-number">05</p><h2>Stop safely</h2><pre><code>make stop</code></pre><p>The stop command verifies the recorded PID and process creation time before signaling it. It does not kill an unknown process merely because it occupies port 8080.</p></section>
+    </article>
+  </div>
+</BaseLayout>

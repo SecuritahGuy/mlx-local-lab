@@ -1,0 +1,32 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { publishedDocuments, type PublishedDocument } from '../lib/content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('docs');
+  return publishedDocuments.map((meta) => {
+    const entry = entries.find((candidate) => candidate.id === meta.id);
+    if (!entry) throw new Error(`Published document not found: ${meta.id}`);
+    return { params: { slug: meta.slug }, props: { entry, meta } };
+  });
+}
+
+const { entry, meta } = Astro.props as { entry: Awaited<ReturnType<typeof getCollection<'docs'>>>[number]; meta: PublishedDocument };
+const { Content } = await render(entry);
+const base = import.meta.env.BASE_URL;
+const sectionLabel = meta.section === 'methodology' ? 'Benchmarks' : meta.section === 'guides' ? 'Guides' : 'Results';
+---
+
+<BaseLayout title={`${meta.title} | Local MLX Lab`} description={meta.description}>
+  <header class="document-hero section">
+    <p class="breadcrumb"><a href={base}>Home</a> / <a href={`${base}${meta.section === 'guides' ? 'getting-started' : meta.section === 'methodology' ? 'benchmarks' : 'results'}/`}>{sectionLabel}</a></p>
+    <p class="eyebrow">{sectionLabel}{meta.date ? ` · ${meta.date}` : ''}</p>
+    <h1>{meta.title}</h1>
+    <p class="hero-copy">{meta.description}</p>
+  </header>
+  <div class="document-shell section compact-section">
+    <aside><p class="section-label">Source note</p><p>This page is rendered from a reviewed Markdown artifact in the repository.</p><a href={`https://github.com/SecuritahGuy/mlx-local-lab/blob/main/docs/${entry.id}.md`}>View source ↗</a></aside>
+    <article class="prose"><Content /></article>
+  </div>
+</BaseLayout>

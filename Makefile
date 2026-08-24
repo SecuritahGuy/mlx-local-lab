@@ -1,4 +1,4 @@
-.PHONY: setup info model stop health bench bench-all bench-fast bench-vision bench-camera bench-sports bench-agentic bench-hallucination bench-hallucination-natural bench-hallucination-guardrailed bench-rag bench-full bench-executable bench-realistic-rag bench-photographic reliability-report compare test lint check download multimodal
+.PHONY: setup info model stop health bench bench-all bench-fast bench-vision bench-camera bench-sports bench-agentic bench-hallucination bench-hallucination-natural bench-hallucination-guardrailed bench-rag bench-full bench-executable bench-realistic-rag bench-photographic reliability-report compare test lint check site-check download multimodal
 
 MODEL ?= qwen
 CONTEXT ?= 2048
@@ -86,3 +86,6 @@ lint:
 	uv run ruff check .
 
 check: lint test
+
+site-check:
+	cd website && npm run verify

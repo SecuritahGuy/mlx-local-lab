@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout
+  title="Local MLX Lab — Apple Silicon model benchmarks"
+  description="Reproducible, localhost-only MLX model serving and practical benchmarks on a 24 GiB Apple Silicon Mac."
+>
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Apple Silicon · 24 GiB · localhost only</p>
+      <h1>Measure local models where they <em>actually run.</em></h1>
+      <p class="hero-copy">A reproducible MLX lab for comparing one model at a time—complete with process safety, OpenAI-compatible APIs, realistic benchmarks, and evidence you can inspect.</p>
+      <div class="actions">
+        <a class="button button-primary" href={`${base}results/`}>Explore results →</a>
+        <a class="button button-secondary" href={`${base}getting-started/`}>Run the lab</a>
+      </div>
+    </div>
+    <aside class="signal-card" aria-labelledby="latest-signal">
+      <p class="signal-date">Latest field note · 2026-08-24</p>
+      <h2 id="latest-signal">Four recent MLX checkpoints, tested on one machine.</h2>
+      <p>Only one emerged as a clear next-step candidate for the lab.</p>
+      <div class="signal-result"><strong>1 / 4</strong><span>Octen Embedding ranked both intended documents first.</span></div>
+      <a href={`${base}results/mlx-candidates-2026-08-24/`}>Read the evaluation →</a>
+    </aside>
+  </section>
+  <section class="lab-strip" aria-label="Lab principles">
+    <div><strong>One model at a time</strong><span>Comparable runs without hidden contention</span></div>
+    <div><strong>127.0.0.1 by design</strong><span>Inference stays on the machine</span></div>
+    <div><strong>Raw evidence retained</strong><span>Reports never replace measurements</span></div>
+  </section>
+  <section class="section">
+    <div class="section-heading">
+      <div><p class="section-label">Current lab snapshot</p><h2>Different strengths. Same hardware.</h2></div>
+      <p>The useful question is not “which model wins?” It is which measured behavior fits the workload—and whether the evidence is complete enough to trust the answer.</p>
+    </div>
+    <div class="model-grid">
+      <article class="model-card"><header><h3>Qwen 3.5 9B</h3><span class="status">Recommended</span></header><p>Strongest general local profile across repository, vision, sports, and grounded tasks.</p><div class="metric"><p class="metric-label">Repeated-trial coverage</p><strong>39 / 39</strong></div></article>
+      <article class="model-card"><header><h3>Gemma 4 12B</h3><span class="status">Measured</span></header><p>Excellent reasoning results, with weaker structured-schema reliability in this setup.</p><div class="metric"><p class="metric-label">Reasoning route score</p><strong>100%</strong></div></article>
+      <article class="model-card"><header><h3>GPT-OSS 20B</h3><span class="status">Incomplete</span></header><p>Fast and capable in observed text runs, but repeated-trial coverage remains unfinished.</p><div class="metric"><p class="metric-label">Repeated-trial coverage</p><strong>13 / 39</strong></div></article>
+    </div>
+  </section>
+</BaseLayout>

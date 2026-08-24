@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://securitahguy.github.io/mlx-local-lab/sitemap-index.xml
