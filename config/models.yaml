@@ -14,6 +14,37 @@ models:
     startup_args: [--max-kv-size, "16384", --max-num-seqs, "1", --vision-cache-size, "1"]
     responses_api: true
     notes: Best first candidate for general, coding, multimodal, and Codex compatibility tests.
+  qwen38:
+    name: Qwen 3.8 27B 4-bit with MTP
+    model_id: mlx-community/Qwen3.8-27B-4bit
+    runtime: mlx-vlm
+    port: 8080
+    model_type: image-text-to-text
+    multimodal: true
+    reasoning: true
+    context_limit: 2048
+    temperature: 0.1
+    estimated_download_gb: 15.23
+    startup_command: mlx_vlm.server
+    startup_args: [--max-kv-size, "2048", --max-num-seqs, "1", --vision-cache-size, "1", --draft-model, mlx-community/Qwen3.8-27B-MTP-4bit, --draft-kind, mtp]
+    additional_model_ids: [mlx-community/Qwen3.8-27B-MTP-4bit]
+    responses_api: true
+    notes: High-upside but tight 24 GiB fit; start at 2K with one sequence and the matching MTP drafter.
+  lfm25:
+    name: LFM 2.5 VL 3B OptiQ 4-bit
+    model_id: mlx-community/LFM2.5-VL-3B-OptiQ-4bit
+    runtime: mlx-optiq
+    port: 8080
+    model_type: image-text-to-text
+    multimodal: true
+    reasoning: false
+    context_limit: 8192
+    temperature: 0.1
+    estimated_download_gb: 2.64
+    startup_command: optiq
+    startup_args: [--max-context, "8192", --max-concurrent, "1", --no-auth]
+    responses_api: true
+    notes: Lightweight screen, UI, grounding, and multi-image specialist; not a general RAG or autonomous tool-use model.
   gptoss:
     name: GPT-OSS 20B MXFP4-Q8
     model_id: mlx-community/gpt-oss-20b-MXFP4-Q8
