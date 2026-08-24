@@ -25,6 +25,7 @@ class ModelConfig(BaseModel):
     estimated_download_gb: float
     startup_command: str
     startup_args: list[str] = []
+    additional_model_ids: list[str] = []
     responses_api: bool = False
     request_profile: str = "default"
     chat_template: str | None = None

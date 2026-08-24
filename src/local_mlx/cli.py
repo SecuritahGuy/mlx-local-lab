@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import base64
 import json
+import mimetypes
 import subprocess
 from pathlib import Path
 
@@ -18,11 +20,12 @@ from local_mlx.benchmark import comparison_report, run_suite
 from local_mlx.comparison import compare_models
 from local_mlx.config import ROOT, get_model, load_models
 from local_mlx.health import health_report
-from local_mlx.models import is_cached, server_command, start, stop
+from local_mlx.models import is_cached, missing_model_ids, server_command, start, stop
 from local_mlx.practical import run_practical
 
 app = typer.Typer(no_args_is_help=True)
 CATEGORY_OPTION = typer.Option(None)
+IMAGE_OPTION = typer.Option(..., exists=True, dir_okay=False)
 
 
 @app.command()
@@ -66,11 +69,13 @@ def preflight(alias: str) -> None:
 @app.command()
 def download(alias: str) -> None:
     model = get_model(alias)
-    print(f"About to download {model.model_id} (~{model.estimated_download_gb} GB).")
+    model_ids = [model.model_id, *model.additional_model_ids]
+    print(f"About to download {', '.join(model_ids)} (~{model.estimated_download_gb} GB total).")
     print(f"Purpose: {model.notes}")
     if not typer.confirm("Continue?"):
         raise typer.Abort()
-    subprocess.run(["uv", "run", "hf", "download", model.model_id], cwd=ROOT, check=True)
+    for model_id in missing_model_ids(model):
+        subprocess.run(["uv", "run", "hf", "download", model_id], cwd=ROOT, check=True)
 
 
 @app.command()
@@ -143,10 +148,16 @@ def chat(prompt: str) -> None:
 
 
 @app.command()
-def multimodal(model: str, image: Path, prompt: str = "Describe this image precisely.") -> None:
+def multimodal(
+    model: str = typer.Option(...),
+    image: Path = IMAGE_OPTION,
+    prompt: str = typer.Option("Describe this image precisely."),
+) -> None:
     cfg = get_model(model)
     if not cfg.multimodal:
         raise typer.BadParameter(f"{model} is text-only")
+    mime_type = mimetypes.guess_type(image.name)[0] or "application/octet-stream"
+    encoded = base64.b64encode(image.read_bytes()).decode("ascii")
     payload = {
         "model": cfg.model_id,
         "messages": [
@@ -154,7 +165,10 @@ def multimodal(model: str, image: Path, prompt: str = "Describe this image preci
                 "role": "user",
                 "content": [
                     {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": image.resolve().as_uri()}},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:{mime_type};base64,{encoded}"},
+                    },
                 ],
             }
         ],

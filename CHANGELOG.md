@@ -14,6 +14,12 @@ All notable changes to this project are documented here.
 - `gptoss-final`, `gemma-default`, and `gemma-strict` request profiles.
 - Versioned natural and guardrailed hallucination tracks.
 - Grounded StatSpace recommendation explanations with authoritative deterministic gates.
+- Reproducible `qwen38` and `lfm25` model profiles, including Qwen3.8's matching MTP drafter and
+  an isolated OptiQ runtime for LFM2.5-VL.
+- A reviewed August 2026 MLX candidate report covering Qwen3.8, LFM2.5-VL, Nemotron Parse, and
+  Octen Embedding download integrity, runtime compatibility, memory behavior, and smoke tests.
+- Companion-artifact support so model downloads and startup preflight verify required drafter
+  repositories as well as the primary checkpoint.
 
 ### Changed
 
@@ -35,6 +41,11 @@ All notable changes to this project are documented here.
 - StatSpace slate evaluation now covers inclusive thresholds, required versus optional source
   health, duplicate precedence, and complete candidate coverage; ledger audits now score settled
   stake explicitly.
+- Qwen3.8 is capped at a conservative 2K context and retained for controlled experiments after its
+  4-bit target plus MTP drafter triggered heavy swap and elevated memory pressure on the 24 GiB
+  reference host.
+- LFM2.5-VL runs through an isolated `uvx` OptiQ environment because its Transformers requirement
+  conflicts with the shared MLX-VLM environment.
 
 ### Fixed
 
@@ -42,3 +53,5 @@ All notable changes to this project are documented here.
 - JSON schema noncompliance under `mlx-lm`'s ignored `response_format` parameter.
 - Runtime selection when `LOCAL_MLX_MODEL` differs from the currently managed model.
 - Image-only hallucination cases being attempted and scored as failures for text-only models.
+- Local multimodal requests now encode image files as standard base64 data URLs and expose the
+  documented `--model` and `--image` options instead of sending unsupported `file://` URLs.

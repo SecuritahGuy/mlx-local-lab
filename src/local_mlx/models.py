@@ -54,6 +54,14 @@ def is_cached(model_id: str) -> bool:
     return path.exists() and any(path.glob("snapshots/*/*.safetensors"))
 
 
+def missing_model_ids(model: ModelConfig) -> list[str]:
+    return [
+        model_id
+        for model_id in [model.model_id, *model.additional_model_ids]
+        if not is_cached(model_id)
+    ]
+
+
 def read_state() -> dict | None:
     if not STATE_FILE.exists():
         return None
@@ -68,20 +76,38 @@ def read_state() -> dict | None:
 
 
 def server_command(model: ModelConfig) -> list[str]:
-    command = [
-        sys.executable,
-        "-m",
-        model.startup_command,
-        "--model",
-        model.model_id,
-        "--host",
-        "127.0.0.1",
-        "--port",
-        str(model.port),
-        "--max-tokens",
-        "2048",
-        *model.startup_args,
-    ]
+    if model.runtime == "mlx-optiq":
+        command = [
+            "uvx",
+            "--from",
+            "mlx-optiq>=0.4.20",
+            "optiq",
+            "serve",
+            "--model",
+            model.model_id,
+            "--host",
+            "127.0.0.1",
+            "--port",
+            str(model.port),
+            "--max-tokens",
+            "2048",
+            *model.startup_args,
+        ]
+    else:
+        command = [
+            sys.executable,
+            "-m",
+            model.startup_command,
+            "--model",
+            model.model_id,
+            "--host",
+            "127.0.0.1",
+            "--port",
+            str(model.port),
+            "--max-tokens",
+            "2048",
+            *model.startup_args,
+        ]
     if model.chat_template:
         command.extend(["--chat-template", model.chat_template])
     return command
@@ -89,9 +115,11 @@ def server_command(model: ModelConfig) -> list[str]:
 
 def start(alias: str, timeout: int = 600) -> dict:
     model = get_model(alias)
-    if not is_cached(model.model_id):
+    missing = missing_model_ids(model)
+    if missing:
         raise RuntimeError(
-            f"{model.model_id} is not cached (~{model.estimated_download_gb} GB). "
+            f"Required model artifacts are not cached: {', '.join(missing)} "
+            f"(~{model.estimated_download_gb} GB total). "
             f"Run `make download MODEL={alias}` first."
         )
     active = read_state()
