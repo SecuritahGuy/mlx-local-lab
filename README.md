@@ -9,6 +9,8 @@ benchmarks, JSONL measurements, Markdown summaries, and a separate multimodal te
 | Alias | Model | Runtime | Download | Multimodal | Responses API |
 |---|---|---|---:|---|---|
 | `qwen` | `mlx-community/Qwen3.5-9B-4bit` | `mlx-vlm` | ~5.98 GB | yes | yes |
+| `qwen38` | `mlx-community/Qwen3.8-27B-4bit` + MTP drafter | `mlx-vlm` | ~15.23 GB | yes | yes |
+| `lfm25` | `mlx-community/LFM2.5-VL-3B-OptiQ-4bit` | isolated `mlx-optiq` | ~2.64 GB | yes | yes |
 | `gptoss` | `mlx-community/gpt-oss-20b-MXFP4-Q8` | `mlx-lm` | ~12.1 GB | no | no |
 | `gptoss-final` | same GPT-OSS weights, final-channel JSON profile | `mlx-lm` | cached with `gptoss` | no | no |
 | `gemma` | `mlx-community/gemma-4-12B-it-4bit` | `mlx-vlm` | ~6.77 GB | yes | yes |
@@ -46,7 +48,7 @@ make health
 make stop
 ```
 
-After downloading each model, `make model MODEL=qwen|gptoss|gemma` is the one-command start or
+After downloading each model, `make model MODEL=qwen|qwen38|lfm25|gptoss|gemma` is the one-command start or
 switch operation. Switching first stops the process recorded in `.local-mlx/active.json` and then
 loads the requested model. `make stop` only signals the recorded process after checking its PID and
 creation time; it will not blindly kill whatever happens to occupy port 8080. Logs are under
@@ -160,6 +162,12 @@ and other applications share 24 GiB. Registry defaults cap KV context at 16K, se
 one for VLMs, and vision cache at one. Begin at 2K, close memory-heavy applications, watch
 `make health`, and stop if swap rises persistently. `gptoss` is the tightest fit (~12.1 GB weights)
 and should be tested especially conservatively.
+
+`qwen38` is retained for controlled experiments only. On this 24 GiB host, loading its 4-bit target
+and MTP drafter raised swap by more than 5 GiB and the benchmark safety guard detected warning memory
+pressure. `lfm25` runs in an isolated `uvx` environment because its OptiQ runtime and the lab's
+MLX-VLM runtime currently require incompatible Transformers versions. See
+[`docs/results/mlx-candidates-2026-08-24.md`](docs/results/mlx-candidates-2026-08-24.md).
 
 The GPT-OSS command sequence, capability-skip matrix, and completed-run status are in
 [`docs/gptoss-readiness.md`](docs/gptoss-readiness.md). Use `gptoss-final` for structured benchmark
