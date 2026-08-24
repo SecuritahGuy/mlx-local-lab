@@ -1,0 +1,75 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Local MLX Lab',
+  description = 'A reproducible lab for measuring local MLX models on Apple Silicon.',
+} = Astro.props;
+const base = import.meta.env.BASE_URL;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = new URL(`${base}og.png`, Astro.site);
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareSourceCode',
+  name: 'Local MLX Lab',
+  description,
+  codeRepository: 'https://github.com/SecuritahGuy/mlx-local-lab',
+  programmingLanguage: 'Python',
+  runtimePlatform: 'Apple Silicon / macOS',
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#10120f" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Local MLX Lab" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Local MLX Lab — Measure local models where they actually run." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <link rel="canonical" href={canonical} />
+    <title>{title}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} is:inline />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href={base} aria-label="Local MLX Lab home">
+        <span class="brand-mark" aria-hidden="true">M</span>
+        <span>LOCAL <strong>MLX</strong> LAB</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href={`${base}getting-started/`}>Start</a>
+        <a href={`${base}models/`}>Models</a>
+        <a href={`${base}benchmarks/`}>Benchmarks</a>
+        <a href={`${base}results/`}>Results</a>
+        <a class="nav-source" href="https://github.com/SecuritahGuy/mlx-local-lab">Source ↗</a>
+      </nav>
+    </header>
+    <main id="main-content">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>Measured locally. Published with context.</p>
+      <p><a href="https://github.com/SecuritahGuy/mlx-local-lab">GitHub</a> · Apple Silicon · localhost only</p>
+    </footer>
+  </body>
+</html>

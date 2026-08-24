@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
+const categories = [
+  ['Coding', 'Implementation, repair, review, refactoring, and executable patch validation.'],
+  ['Grounding', 'Natural and guardrailed hallucination resistance against fixed local evidence.'],
+  ['Repository', 'Navigation, bounded changes, tests, and appropriate no-change decisions.'],
+  ['Vision', 'Synthetic diagrams, camera scenes, photographs, charts, and mixed inputs.'],
+  ['RAG', 'Answerable and unanswerable retrieval at approximately 2K, 8K, and 16K.'],
+  ['Sports', 'Fictional prediction, recommendation gates, arithmetic, and ledger audits.'],
+];
+---
+
+<BaseLayout title="Benchmark system | Local MLX Lab" description="Practical, reproducible local-model benchmarks that separate infrastructure, inference, scoring, and interpretation.">
+  <header class="page-hero section">
+    <p class="eyebrow">Practical evaluation · versioned contracts</p>
+    <h1>Benchmarks built to fail honestly.</h1>
+    <p class="hero-copy">A request that never reaches inference is not a model failure. A fast answer is not automatically a good one. Every layer is measured separately.</p>
+  </header>
+  <section class="lab-strip" aria-label="Benchmark rules">
+    <div><strong>Infrastructure ≠ quality</strong><span>Transport and parsing failures stay separate</span></div>
+    <div><strong>Unsupported ≠ zero</strong><span>Missing capabilities are reported as N/A</span></div>
+    <div><strong>Small samples stay labeled</strong><span>No confidence theater</span></div>
+  </section>
+  <section class="section">
+    <div class="section-heading"><div><p class="section-label">Evaluation surface</p><h2>Real work, bounded claims.</h2></div><p>Deterministic checks carry the correctness signal where possible. Qualitative outputs and raw JSONL remain available for human review.</p></div>
+    <div class="category-grid">
+      {categories.map(([title, copy], index) => <article><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3><p>{copy}</p></article>)}
+    </div>
+    <div class="actions center-actions"><a class="button button-primary" href={`${base}benchmarks/methodology/`}>Read the full methodology →</a><a class="button button-secondary" href="https://github.com/SecuritahGuy/mlx-local-lab/tree/main/benchmarks/prompts">Inspect prompts</a></div>
+  </section>
+</BaseLayout>

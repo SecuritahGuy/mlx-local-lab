@@ -4,6 +4,9 @@ A reproducible, localhost-only MLX lab for comparing one model at a time on a 24
 Silicon Mac. It provides safe model process management, an OpenAI-compatible client, repeatable
 benchmarks, JSONL measurements, Markdown summaries, and a separate multimodal test.
 
+Explore the project, model registry, methodology, and reviewed results on the
+[Local MLX Lab website](https://securitahguy.github.io/mlx-local-lab/).
+
 ## Models and API compatibility
 
 | Alias | Model | Runtime | Download | Multimodal | Responses API |
